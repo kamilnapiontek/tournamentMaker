@@ -1,2 +1,5 @@
-package com.example.tournamentMaker.token;public class TokenType {
+package com.example.tournamentMaker.token;
+
+public enum TokenType {
+    BEARER
 }
