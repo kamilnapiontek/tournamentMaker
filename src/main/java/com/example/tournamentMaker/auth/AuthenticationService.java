@@ -35,7 +35,13 @@ public class AuthenticationService {
     }
 
     private void saveUserToken(User user, String token) {
-        Token tokenToSave = new Token(token, TokenType.BEARER, false, false, user);
+        Token tokenToSave = Token.builder()
+                .token(token)
+                .tokenType(TokenType.BEARER)
+                .expired(false)
+                .revoked(false)
+                .user(user)
+                .build();
         tokenRepository.save(tokenToSave);
     }
 
@@ -43,7 +49,7 @@ public class AuthenticationService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getEmail(),authenticationRequest.getPassword()));
 
-        User user = repository.findByEmail(authenticationRequest.getEmail()).orElseThrow(); // jak nie znajdziesz to się wypierdol
+        User user = repository.findByEmail(authenticationRequest.getEmail()).orElseThrow();
         String token = jwtService.generateToken(user);
         saveUserToken(user,token);
         revokeAllUserTokens(user);

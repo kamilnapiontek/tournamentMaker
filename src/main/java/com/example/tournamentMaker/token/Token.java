@@ -2,7 +2,6 @@ package com.example.tournamentMaker.token;
 
 import com.example.tournamentMaker.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -40,5 +39,46 @@ public class Token {
         this.revoked = revoked;
         this.expired = expired;
         this.user = user;
+    }
+
+    public static TokenBuilder builder() {
+        return new TokenBuilder();
+    }
+
+    public static class TokenBuilder {
+        private String token;
+        private TokenType tokenType;
+        private boolean revoked;
+        private boolean expired;
+        private User user;
+
+        public TokenBuilder token(String token) {
+            this.token = token;
+            return this;
+        }
+
+        public TokenBuilder tokenType(TokenType tokenType) {
+            this.tokenType = tokenType;
+            return this;
+        }
+
+        public TokenBuilder revoked(boolean revoked) {
+            this.revoked = revoked;
+            return this;
+        }
+
+        public TokenBuilder expired(boolean expired) {
+            this.expired = expired;
+            return this;
+        }
+
+        public TokenBuilder user(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public Token build() {
+            return new Token(token, tokenType, revoked, expired, user);
+        }
     }
 }
