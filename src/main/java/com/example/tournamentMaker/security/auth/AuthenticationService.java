@@ -1,10 +1,10 @@
-package com.example.tournamentMaker.auth;
+package com.example.tournamentMaker.security.auth;
 
-import com.example.tournamentMaker.address.Address;
-import com.example.tournamentMaker.config.JwtService;
-import com.example.tournamentMaker.token.Token;
-import com.example.tournamentMaker.token.TokenRepository;
-import com.example.tournamentMaker.token.TokenType;
+import com.example.tournamentMaker.user.Address;
+import com.example.tournamentMaker.security.config.JwtService;
+import com.example.tournamentMaker.security.token.Token;
+import com.example.tournamentMaker.security.token.TokenRepository;
+import com.example.tournamentMaker.security.token.TokenType;
 import com.example.tournamentMaker.user.Role;
 import com.example.tournamentMaker.user.User;
 import com.example.tournamentMaker.user.UserRepository;
@@ -26,8 +26,9 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
         User user = new User(request.getFirstName(), request.getLastName(), new Address(request.getCity(),
-                request.getStreet()), request.getEmail(), request.getPassword(), Role.USER);
+                request.getStreet()), request.getEmail(), encodedPassword, Role.USER);
         User savedUser = repository.save(user);
         String token = jwtService.generateToken(user);
         saveUserToken(savedUser,token);

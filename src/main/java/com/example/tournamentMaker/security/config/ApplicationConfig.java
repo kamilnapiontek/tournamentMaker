@@ -1,4 +1,4 @@
-package com.example.tournamentMaker.config;
+package com.example.tournamentMaker.security.config;
 
 import com.example.tournamentMaker.user.UserRepository;
 import lombok.RequiredArgsConstructor;

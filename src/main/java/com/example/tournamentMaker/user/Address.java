@@ -1,4 +1,4 @@
-package com.example.tournamentMaker.address;
+package com.example.tournamentMaker.user;
 
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;

@@ -1,7 +1,7 @@
-package com.example.tournamentMaker.config;
+package com.example.tournamentMaker.security.config;
 
-import com.example.tournamentMaker.token.Token;
-import com.example.tournamentMaker.token.TokenRepository;
+import com.example.tournamentMaker.security.token.Token;
+import com.example.tournamentMaker.security.token.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
