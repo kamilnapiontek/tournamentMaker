@@ -17,9 +17,9 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    @Value("${property.secret}")
+    @Value("${token.secret}")
     private String SECRET_KEY;
-    @Value("${property.expiry.time}")
+    @Value("${token.expiration.time}")
     private Integer TOKEN_EXPIRY_TIME;
 
     String extractUsername(String token) {

@@ -26,8 +26,9 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
         User user = new User(request.getFirstName(), request.getLastName(), new Address(request.getCity(),
-                request.getStreet()), request.getEmail(), request.getPassword(), Role.USER);
+                request.getStreet()), request.getEmail(), encodedPassword, Role.USER);
         User savedUser = repository.save(user);
         String token = jwtService.generateToken(user);
         saveUserToken(savedUser,token);
