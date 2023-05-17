@@ -1,4 +1,4 @@
-package com.example.tournamentMaker.config;
+package com.example.tournamentMaker.security.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

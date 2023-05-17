@@ -1,4 +1,4 @@
-package com.example.tournamentMaker.token;
+package com.example.tournamentMaker.security.token;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

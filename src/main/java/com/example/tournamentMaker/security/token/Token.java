@@ -1,4 +1,4 @@
-package com.example.tournamentMaker.token;
+package com.example.tournamentMaker.security.token;
 
 import com.example.tournamentMaker.user.User;
 import jakarta.persistence.*;

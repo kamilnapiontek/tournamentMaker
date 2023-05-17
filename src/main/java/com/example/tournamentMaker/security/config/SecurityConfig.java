@@ -1,4 +1,4 @@
-package com.example.tournamentMaker.config;
+package com.example.tournamentMaker.security.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;

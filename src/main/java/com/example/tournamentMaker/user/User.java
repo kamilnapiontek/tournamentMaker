@@ -1,10 +1,7 @@
 package com.example.tournamentMaker.user;
 
-import com.example.tournamentMaker.address.Address;
-import com.example.tournamentMaker.token.Token;
+import com.example.tournamentMaker.security.token.Token;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

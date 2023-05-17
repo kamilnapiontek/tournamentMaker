@@ -1,10 +1,10 @@
-package com.example.tournamentMaker.auth;
+package com.example.tournamentMaker.security.auth;
 
-import com.example.tournamentMaker.address.Address;
-import com.example.tournamentMaker.config.JwtService;
-import com.example.tournamentMaker.token.Token;
-import com.example.tournamentMaker.token.TokenRepository;
-import com.example.tournamentMaker.token.TokenType;
+import com.example.tournamentMaker.user.Address;
+import com.example.tournamentMaker.security.config.JwtService;
+import com.example.tournamentMaker.security.token.Token;
+import com.example.tournamentMaker.security.token.TokenRepository;
+import com.example.tournamentMaker.security.token.TokenType;
 import com.example.tournamentMaker.user.Role;
 import com.example.tournamentMaker.user.User;
 import com.example.tournamentMaker.user.UserRepository;

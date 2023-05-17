@@ -1,6 +1,6 @@
-package com.example.tournamentMaker.config;
+package com.example.tournamentMaker.security.config;
 
-import com.example.tournamentMaker.token.TokenRepository;
+import com.example.tournamentMaker.security.token.TokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
