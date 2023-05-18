@@ -67,5 +67,11 @@ public class AuthenticationService {
         });
         tokenRepository.saveAll(validTokens);
     }
+
+    public void hashFirstUserPassword() {
+        User user = repository.findById(1L).orElseThrow();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        repository.save(user);
+    }
 }
 

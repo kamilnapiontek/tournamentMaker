@@ -22,4 +22,9 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest) {
         return ResponseEntity.ok(service.authenticate(authenticationRequest));
     }
+
+    @PostMapping("/hashPassword")
+    public void hashFirstUserPassword() {
+        service.hashFirstUserPassword();
+    }
 }
