@@ -1,17 +1,21 @@
 package com.example.tournamentMaker.security.auth;
 
+import com.example.tournamentMaker.user.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@Getter
+@Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class RegisterRequest {
+
     private String firstName;
     private String lastName;
-    private String city;
-    private String street;
     private String email;
     private String password;
+    private String city;
+    private String street;
 }

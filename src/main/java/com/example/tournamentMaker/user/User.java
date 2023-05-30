@@ -2,9 +2,7 @@ package com.example.tournamentMaker.user;
 
 import com.example.tournamentMaker.security.token.Token;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -13,9 +11,11 @@ import java.util.List;
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "users")
 @Getter
 @Setter
+@Builder
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class User implements UserDetails {
             name = "id",
             updatable = false
     )
-    private long id;
+    private Integer id;
 
     private String firstname;
     private String lastname;
@@ -34,26 +34,17 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    public User(String firstname, String lastname, Address address, String email, String password, Role role) {
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.address = address;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
-
     @OneToMany(
             mappedBy = "user",
             orphanRemoval = true,
             cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
             fetch = FetchType.LAZY
     )
-    private List<Token> tokenList;
+    private List<Token> tokens;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return role.getAuthorities();
     }
 
     @Override
