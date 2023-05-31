@@ -1,13 +1,11 @@
 package com.example.tournamentMaker.security.auth;
 
 import com.example.tournamentMaker.user.Role;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Builder
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterRequest {
