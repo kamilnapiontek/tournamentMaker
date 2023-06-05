@@ -1,21 +1,17 @@
 package com.example.tournamentMaker.team;
 
 import com.example.tournamentMaker.team.player.FootballPosition;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
-class FootballPlayerRequest {
-    private String teamName;
-    private String firstName;
-    private String lastName;
-    private Integer jerseyNumber;
-    private FootballPosition footballPosition;
+class FootballPlayerRequest extends PlayerRequest {
+    private final Integer jerseyNumber;
+    private final FootballPosition footballPosition;
 
-    @JsonProperty("FootballPosition")
-    public void setFootballPosition(String position) {
-        this.footballPosition = FootballPosition.valueOf(position);
+    public FootballPlayerRequest(String teamName, String firstName, String lastName,
+                                 Integer jerseyNumber, String footballPosition) {
+        super(teamName, firstName, lastName);
+        this.jerseyNumber = jerseyNumber;
+        this.footballPosition = FootballPosition.valueOf(footballPosition);
     }
 }

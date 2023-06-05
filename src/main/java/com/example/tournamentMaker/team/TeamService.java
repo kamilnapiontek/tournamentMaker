@@ -19,22 +19,32 @@ class TeamService {
     private final TeamRepository teamRepository;
     private final TournamentRepository tournamentRepository;
     private final PlayerRepository playerRepository;
+    private static final String NO_TOURNAMENT_FOUND = "No tournament with the given name was found";
 
     void createTeam(TeamRequest teamRequest) {
         Optional<Tournament> tournament = tournamentRepository.findByName(teamRequest.getTournamentName());
         tournament.ifPresentOrElse(t -> {
-            Sport sport = t.getSport();
-            switch (sport) {
-                case FOOTBALL -> {
-                    Team team = new Team(teamRequest.getTeamName(), t);
-                    FootballStatistics footballStatistics = new FootballStatistics(team, 0, 0, 0, 0, 0);
-                    team.setStatistics(footballStatistics);
-                    teamRepository.save(team);
+            if (t.isRegistrationComplete())
+                throw new RegistrationCompleteException("Registration for this tournament is now closed");
+            else {
+                Sport sport = t.getSport();
+                switch (sport) {
+                    case FOOTBALL -> {
+                        Team team = new Team(teamRequest.getTeamName(), t);
+                        FootballStatistics footballStatistics = createFootballStatistics(team);
+                        team.setStatistics(footballStatistics);
+                        teamRepository.save(team);
+                    }
                 }
             }
+
         }, () -> {
-            throw new NoSuchElementException("No tournament with the given name was found");
+            throw new NoSuchElementException(NO_TOURNAMENT_FOUND);
         });
+    }
+
+    private static FootballStatistics createFootballStatistics(Team team) {
+        return new FootballStatistics(team, 0, 0, 0, 0, 0);
     }
 
     void addFootballPlayer(FootballPlayerRequest request) {
@@ -51,7 +61,7 @@ class TeamService {
             } else throw new IllegalArgumentException("Player with this number already exist in team");
 
         }, () -> {
-            throw new NoSuchElementException("No tournament with the given name was found");
+            throw new NoSuchElementException(NO_TOURNAMENT_FOUND);
         });
     }
 

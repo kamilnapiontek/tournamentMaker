@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 @Entity
 @Table(name = "statistics")
@@ -31,7 +29,7 @@ public abstract class Statistics {
     private Integer countDraws;
     @ElementCollection
     @Enumerated(EnumType.STRING)
-    private List<Result> recentResults = new ArrayList<>();
+    private List<MatchResult> recentMatchResults = new ArrayList<>();
 
     public Statistics(Team team, Integer countWins, Integer countLoses, Integer countDraws) {
         this.team = team;

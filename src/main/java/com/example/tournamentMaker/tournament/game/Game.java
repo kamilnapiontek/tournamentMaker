@@ -1,7 +1,6 @@
 package com.example.tournamentMaker.tournament.game;
 
-import com.example.tournamentMaker.statistics.Result;
-import com.example.tournamentMaker.team.Team;
+import com.example.tournamentMaker.statistics.MatchResult;
 import com.example.tournamentMaker.tournament.round.Round;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -20,10 +19,10 @@ public class Game {
             updatable = false
     )
     private Long id;
-    private Integer hostsId;
-    private Integer guestsId;
+    private Integer hostId;
+    private Integer guestId;
     @Enumerated(EnumType.STRING)
-    private Result hostsResult;
+    private MatchResult hostMatchResult;
     @ManyToOne
     @JoinColumn(
             name = "round_id",

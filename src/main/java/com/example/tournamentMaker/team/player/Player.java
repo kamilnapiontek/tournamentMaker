@@ -21,13 +21,6 @@ public abstract class Player {
 
     private String firstName;
     private String lastName;
-
-    Player(String firstName, String lastName, Team team) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.team = team;
-    }
-
     @ManyToOne
     @JoinColumn(
             name = "team_id",
@@ -37,4 +30,10 @@ public abstract class Player {
             )
     )
     private Team team;
+
+    Player(String firstName, String lastName, Team team) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.team = team;
+    }
 }

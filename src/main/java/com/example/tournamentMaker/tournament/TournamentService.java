@@ -1,20 +1,30 @@
 package com.example.tournamentMaker.tournament;
 
-import com.example.tournamentMaker.statistics.BasketballStatistics;
-import com.example.tournamentMaker.statistics.FootballStatistics;
-import com.example.tournamentMaker.statistics.Statistics;
-import com.example.tournamentMaker.tournament.enums.Sport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
-public class TournamentService {
+class TournamentService {
     private final TournamentRepository tournamentRepository;
 
-    public void createTournament(TournamentRequest tournamentRequest) {
+    void createTournament(TournamentRequest tournamentRequest) {
         Tournament tournament = new Tournament(
                 tournamentRequest.getName(), tournamentRequest.getType(), tournamentRequest.getSport());
         tournamentRepository.save(tournament);
+    }
+
+    void finishRegistration(String tournamentName) {
+        Optional<Tournament> optionalTournament = tournamentRepository.findByName(tournamentName);
+        optionalTournament.ifPresentOrElse(tournament -> {
+                    tournament.setRegistrationComplete(true);
+                    tournamentRepository.save(tournament);
+                },
+                () -> {
+                    throw new NoSuchElementException("No tournament with the given name was found");
+                });
     }
 }

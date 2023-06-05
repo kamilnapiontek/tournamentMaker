@@ -5,9 +5,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @NoArgsConstructor
@@ -15,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class FootballPlayer extends Player {
-    private Integer jerseyNumber;
+    private int jerseyNumber;
     @Enumerated(EnumType.STRING)
     private FootballPosition footballPosition;
 

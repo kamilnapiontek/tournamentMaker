@@ -1,6 +1,6 @@
 package com.example.tournamentMaker.statistics;
 
-public enum Result {
+public enum MatchResult {
     WIN,
     LOSE,
     DRAW

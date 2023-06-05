@@ -19,4 +19,9 @@ public class TournamentController {
     public void createTournament(@RequestBody TournamentRequest tournamentRequest) {
         tournamentService.createTournament(tournamentRequest);
     }
+    @PostMapping("/finishRegistration")
+    @PreAuthorize("hasAuthority('admin:update')")
+    public void finishRegistration(@RequestBody String tournamentName) {
+        tournamentService.finishRegistration(tournamentName);
+    }
 }
