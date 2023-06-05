@@ -3,6 +3,7 @@ package com.example.tournamentMaker.tournament;
 import com.example.tournamentMaker.statistics.BasketballStatistics;
 import com.example.tournamentMaker.statistics.FootballStatistics;
 import com.example.tournamentMaker.statistics.Statistics;
+import com.example.tournamentMaker.tournament.enums.Sport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,9 +13,9 @@ public class TournamentService {
     private final TournamentRepository tournamentRepository;
 
     public void createTournament(TournamentRequest tournamentRequest) {
-        Tournament tournament = new Tournament(tournamentRequest.getName(), tournamentRequest.getType(),
-                tournamentRequest.getSport());
-        switch (tournamentRequest.getSport()) {
+        Sport sport = tournamentRequest.getSport();
+        Tournament tournament = new Tournament(tournamentRequest.getName(), tournamentRequest.getType(), sport);
+        switch (sport) {
             case FOOTBALL -> {
                 FootballStatistics footballStatistics = new FootballStatistics();
                 save(tournament, footballStatistics);
@@ -31,6 +32,5 @@ public class TournamentService {
         tournament.setStatistics(statistics);
         statistics.setTournament(tournament);
         tournamentRepository.save(tournament);
-        // MOŻLIWE, ŻE ZAPIS Z DRUGIEJ STRONY KONIECZNY
     }
 }
