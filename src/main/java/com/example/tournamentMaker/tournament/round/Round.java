@@ -1,8 +1,7 @@
-package com.example.tournamentMaker.team;
+package com.example.tournamentMaker.tournament.round;
 
-import com.example.tournamentMaker.statistics.Statistics;
-import com.example.tournamentMaker.team.player.Player;
 import com.example.tournamentMaker.tournament.Tournament;
+import com.example.tournamentMaker.tournament.game.Game;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,11 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "teams")
 @NoArgsConstructor
 @Getter
 @Setter
-public class Team {
+public class Round {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(
@@ -24,13 +22,6 @@ public class Team {
             updatable = false
     )
     private Long id;
-    @Column(
-            name = "name",
-            nullable = false,
-            columnDefinition = "TEXT"
-    )
-    private String name;
-
     @ManyToOne
     @JoinColumn(
             name = "tournament_id",
@@ -41,28 +32,11 @@ public class Team {
             )
     )
     private Tournament tournament;
-
-    @OneToOne(
-            orphanRemoval = true,
-            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-            fetch = FetchType.LAZY
-    )
-    @JoinColumn(
-            name = "statistics_id",
-            referencedColumnName = "id"
-    )
-    private Statistics statistics;
-
     @OneToMany(
-            mappedBy = "team",
+            mappedBy = "round",
             orphanRemoval = true,
             cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
             fetch = FetchType.LAZY
     )
-    private List<Player> players = new ArrayList<>();
-
-    public Team(String name, Tournament tournament) {
-        this.name = name;
-        this.tournament = tournament;
-    }
+    private List<Game> games = new ArrayList<>();
 }

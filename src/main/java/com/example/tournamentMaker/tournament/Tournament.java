@@ -4,6 +4,7 @@ import com.example.tournamentMaker.statistics.Statistics;
 import com.example.tournamentMaker.team.Team;
 import com.example.tournamentMaker.tournament.enums.Sport;
 import com.example.tournamentMaker.tournament.enums.Type;
+import com.example.tournamentMaker.tournament.round.Round;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,17 +40,13 @@ public class Tournament {
     )
     private List<Team> teamList = new ArrayList<>();
 
-    @OneToOne(
+    @OneToMany(
+            mappedBy = "tournament",
             orphanRemoval = true,
             cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
             fetch = FetchType.LAZY
     )
-    @JoinColumn(
-            name = "statistics_id",
-            referencedColumnName = "id"
-    )
-    private Statistics statistics;
-
+    private List<Round> rounds = new ArrayList<>();
     public Tournament(String name, Type type, Sport sport) {
         this.name = name;
         this.type = type;
