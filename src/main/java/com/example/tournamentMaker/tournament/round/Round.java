@@ -39,4 +39,8 @@ public class Round {
             fetch = FetchType.LAZY
     )
     private List<Game> games = new ArrayList<>();
+
+    public Round(Tournament tournament) {
+        this.tournament = tournament;
+    }
 }

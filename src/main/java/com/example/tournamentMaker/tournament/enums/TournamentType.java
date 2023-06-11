@@ -1,6 +1,6 @@
 package com.example.tournamentMaker.tournament.enums;
 
-public enum Type {
+public enum TournamentType {
     LEAGUE,
     CUP
 }

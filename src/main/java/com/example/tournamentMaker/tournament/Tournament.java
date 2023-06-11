@@ -1,9 +1,8 @@
 package com.example.tournamentMaker.tournament;
 
-import com.example.tournamentMaker.statistics.Statistics;
 import com.example.tournamentMaker.team.Team;
 import com.example.tournamentMaker.tournament.enums.Sport;
-import com.example.tournamentMaker.tournament.enums.Type;
+import com.example.tournamentMaker.tournament.enums.TournamentType;
 import com.example.tournamentMaker.tournament.round.Round;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -28,10 +27,10 @@ public class Tournament {
     private Long id;
     private String name;
     @Enumerated(EnumType.STRING)
-    private Type type;
+    private TournamentType tournamentType;
     @Enumerated(EnumType.STRING)
     private Sport sport;
-    private boolean isRegistrationComplete = false;
+    private boolean RegistrationComplete = false;
 
     @OneToMany(
             mappedBy = "tournament",
@@ -48,9 +47,10 @@ public class Tournament {
             fetch = FetchType.LAZY
     )
     private List<Round> rounds = new ArrayList<>();
-    public Tournament(String name, Type type, Sport sport) {
+
+    public Tournament(String name, TournamentType tournamentType, Sport sport) {
         this.name = name;
-        this.type = type;
+        this.tournamentType = tournamentType;
         this.sport = sport;
     }
 }

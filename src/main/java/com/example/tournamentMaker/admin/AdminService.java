@@ -1,6 +1,5 @@
 package com.example.tournamentMaker.admin;
 
-import com.example.tournamentMaker.user.Role;
 import com.example.tournamentMaker.user.User;
 import com.example.tournamentMaker.user.UserRepository;
 import lombok.RequiredArgsConstructor;

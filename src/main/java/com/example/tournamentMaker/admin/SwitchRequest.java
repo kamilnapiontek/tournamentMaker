@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 class SwitchRequest {
-    private String email;
+    private final String email;
     private Role newRole;
 
     @JsonProperty("Role")

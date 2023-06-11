@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/team")
 @PreAuthorize("hasRole('ADMIN')")
-public class TeamController {
+class TeamController {
     private final TeamService teamService;
 
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('admin:update')")
-    public void createTeam(@RequestBody TeamRequest teamRequest) {
+    void createTeam(@RequestBody TeamRequest teamRequest) {
         teamService.createTeam(teamRequest);
     }
     @PostMapping("/create-player-add-to-team")
     @PreAuthorize("hasAuthority('admin:update')")
-    public void addFootballPlayer(@RequestBody FootballPlayerRequest footballPlayerRequest) {
+    void addFootballPlayer(@RequestBody FootballPlayerRequest footballPlayerRequest) {
         teamService.addFootballPlayer(footballPlayerRequest);
     }
 }

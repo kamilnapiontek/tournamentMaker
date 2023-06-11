@@ -11,17 +11,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/tournament")
 @PreAuthorize("hasRole('ADMIN')")
-public class TournamentController {
+class TournamentController {
     private final TournamentService tournamentService;
 
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('admin:update')")
-    public void createTournament(@RequestBody TournamentRequest tournamentRequest) {
+    void createTournament(@RequestBody TournamentRequest tournamentRequest) {
         tournamentService.createTournament(tournamentRequest);
     }
+//    @PreAuthorize("hasAnyRole('ADMIN','DB-ADMIN')")
     @PostMapping("/finishRegistration")
     @PreAuthorize("hasAuthority('admin:update')")
-    public void finishRegistration(@RequestBody String tournamentName) {
+    void finishRegistration(@RequestBody String tournamentName) {
         tournamentService.finishRegistration(tournamentName);
     }
+    @PostMapping("/createSchedule")
+    @PreAuthorize("hasAuthority('admin:update')")
+    void createSchedule(@RequestBody String tournamentName) {
+        tournamentService.createSchedule(tournamentName);
+    }
+
 }

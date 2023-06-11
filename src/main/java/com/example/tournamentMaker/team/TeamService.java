@@ -1,6 +1,8 @@
 package com.example.tournamentMaker.team;
 
+import com.example.tournamentMaker.constans.Constans;
 import com.example.tournamentMaker.statistics.FootballStatistics;
+import com.example.tournamentMaker.team.exception.TournamentRegistrationException;
 import com.example.tournamentMaker.team.player.FootballPlayer;
 import com.example.tournamentMaker.team.player.PlayerRepository;
 import com.example.tournamentMaker.tournament.Tournament;
@@ -19,13 +21,12 @@ class TeamService {
     private final TeamRepository teamRepository;
     private final TournamentRepository tournamentRepository;
     private final PlayerRepository playerRepository;
-    private static final String NO_TOURNAMENT_FOUND = "No tournament with the given name was found";
 
     void createTeam(TeamRequest teamRequest) {
         Optional<Tournament> tournament = tournamentRepository.findByName(teamRequest.getTournamentName());
         tournament.ifPresentOrElse(t -> {
             if (t.isRegistrationComplete())
-                throw new RegistrationCompleteException("Registration for this tournament is now closed");
+                throw new TournamentRegistrationException("Registration for this tournament is now closed");
             else {
                 Sport sport = t.getSport();
                 switch (sport) {
@@ -35,11 +36,14 @@ class TeamService {
                         team.setStatistics(footballStatistics);
                         teamRepository.save(team);
                     }
+                    case BASKETBALL -> {
+                        //TODO
+                    }
                 }
             }
 
         }, () -> {
-            throw new NoSuchElementException(NO_TOURNAMENT_FOUND);
+            throw new NoSuchElementException(Constans.NO_TOURNAMENT_FOUND);
         });
     }
 
@@ -56,12 +60,10 @@ class TeamService {
                 playerRepository.save(player);
                 t.getPlayers().add(player);
                 teamRepository.save(t);
-
-                // możliwe, że zapis z 2 stron
             } else throw new IllegalArgumentException("Player with this number already exist in team");
 
         }, () -> {
-            throw new NoSuchElementException(NO_TOURNAMENT_FOUND);
+            throw new NoSuchElementException(Constans.NO_TOURNAMENT_FOUND);
         });
     }
 
