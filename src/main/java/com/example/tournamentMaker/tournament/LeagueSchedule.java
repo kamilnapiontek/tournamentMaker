@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,59 +21,45 @@ public class LeagueSchedule implements ScheduleStrategy {
 
     @Override
     public void createSchedule(Tournament tournament) {
-        if (tournament.getTeamList().size() % 2 == 0) {
-            createScheduleForEvenTeamsNumber(tournament);
-        } else createScheduleForOddTeamsNumber(tournament);
+        boolean evenTeamsCount = tournament.getTeamList().size() % 2 == 0;
+        createRoundRobinScheduling(tournament, evenTeamsCount);
     }
 
-    private void createScheduleForEvenTeamsNumber(Tournament tournament) {
-        int numberTeams = tournament.getTeamList().size();
-        int roundsNumber = numberTeams - 1;
-        int gamesNumber = numberTeams / 2;
+    private void createRoundRobinScheduling(Tournament tournament, boolean evenTeamsCount) {
+        int teamsAmount = tournament.getTeamList().size();
+        int gamesAmount = teamsAmount / 2;
+        int roundsAmount;
 
-        List<Long> teamIdList = getTeamIdList(tournament);
+        if (evenTeamsCount) {
+            roundsAmount = teamsAmount - 1;
+        } else {
+            roundsAmount = teamsAmount;
+        }
 
-        List<Long> list = getListOfOddItems(teamIdList);
-        addEvenItemsInReverseOrder(teamIdList, list);
+        List<Long> teamsId = getTeamIdList(tournament);
+        List<Long> oddItems = getListOfOddItems(teamsId);
+        List<Long> allTeamsIdsInCorrectOrder = addEvenItemsInReverseOrder(teamsId, oddItems);
 
-        for (int i = 0; i < roundsNumber; i++) {
+        for (int i = 0; i < roundsAmount; i++) {
             Round round = new Round(tournament);
-            for (int j = 0; j < gamesNumber; j++) {
-                Game game = new Game(i + 1, list.get(j), list.get(numberTeams - 1 - j), round);
+            for (int j = 0; j < gamesAmount; j++) {
+                Game game = new Game(i + 1, allTeamsIdsInCorrectOrder.get(j),
+                        allTeamsIdsInCorrectOrder.get(teamsAmount - 1 - j), round);
                 round.getGames().add(game);
             }
             roundRepository.save(round);
-            moveSecondLastItemToFirstPosition(list);
             tournament.getRounds().add(round);
 
+            if (evenTeamsCount) {
+                movePenultimateItemToFirstPosition(allTeamsIdsInCorrectOrder);
+            } else {
+                moveLastItemToFirstPosition(allTeamsIdsInCorrectOrder);
+            }
         }
         tournamentRepository.save(tournament);
     }
 
-    private void createScheduleForOddTeamsNumber(Tournament tournament) {
-        int numberTeams = tournament.getTeamList().size();
-        int roundsNumber = numberTeams;
-        int gamesNumber = numberTeams / 2;
-
-        List<Long> teamIdList = getTeamIdList(tournament);
-
-        List<Long> list = getListOfOddItems(teamIdList);
-        addEvenItemsInReverseOrder(teamIdList, list);
-
-        for (int i = 0; i < roundsNumber; i++) {
-            Round round = new Round(tournament);
-            for (int j = 0; j < gamesNumber; j++) {
-                Game game = new Game(i + 1, list.get(j), list.get(numberTeams - 1 - j), round);
-                round.getGames().add(game);
-            }
-            roundRepository.save(round);
-            moveLastItemToTheFirstPosition(list);
-            tournament.getRounds().add(round);
-        }
-        tournamentRepository.save(tournament);
-    }
-
-    private void addEvenItemsInReverseOrder(List<Long> list, List<Long> resultList) {
+    private List<Long> addEvenItemsInReverseOrder(List<Long> list, List<Long> resultList) {
         resultList.addAll(
                 list.stream()
                         .filter(id -> list.indexOf(id) % 2 == 0)
@@ -81,29 +68,27 @@ public class LeagueSchedule implements ScheduleStrategy {
                             return collected;
                         }))
         );
+        return resultList;
     }
 
-    private ArrayList<Long> getListOfOddItems(List<Long> list) {
-        return new ArrayList<>(
-                list.stream()
-                        .filter(id -> list.indexOf(id) % 2 != 0)
-                        .toList());
+    private List<Long> getListOfOddItems(List<Long> list) {
+        return new LinkedList<>(list.stream().filter(id -> list.indexOf(id) % 2 != 0).toList());
     }
 
     private List<Long> getTeamIdList(Tournament tournament) {
-        return tournament.getTeamList().stream()
+        return tournament.getTeamList()
+                .stream()
                 .map(Team::getId)
                 .toList();
     }
 
-    private void moveSecondLastItemToFirstPosition(List<Long> list) {
-
-        Long secondLastElement = list.get(list.size() - 2);
-        list.remove(secondLastElement);
-        list.add(0, secondLastElement);
+    private void movePenultimateItemToFirstPosition(List<Long> list) {
+        Long penultimateElement = list.get(list.size() - 2);
+        list.remove(penultimateElement);
+        list.add(0, penultimateElement);
     }
 
-    private void moveLastItemToTheFirstPosition(List<Long> list) {
+    private void moveLastItemToFirstPosition(List<Long> list) {
         List<Long> newList = list.stream()
                 .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
                     List<Long> reversedList = new ArrayList<>(collected);
