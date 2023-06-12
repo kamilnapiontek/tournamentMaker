@@ -1,11 +1,9 @@
 package com.example.tournamentMaker.security.auth;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Data
-@Builder
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 public class AuthenticationRequest {
 
