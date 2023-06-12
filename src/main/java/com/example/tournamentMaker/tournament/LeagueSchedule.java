@@ -89,15 +89,8 @@ public class LeagueSchedule implements ScheduleStrategy {
     }
 
     private void moveLastItemToFirstPosition(List<Long> list) {
-        List<Long> newList = list.stream()
-                .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
-                    List<Long> reversedList = new ArrayList<>(collected);
-                    int lastElementIndex = reversedList.size() - 1;
-                    Long lastElement = reversedList.remove(lastElementIndex);
-                    reversedList.add(0, lastElement);
-                    return reversedList;
-                }));
-        list.clear();
-        list.addAll(newList);
+        Long lastElement = list.get(list.size() - 1);
+        list.remove(lastElement);
+        list.add(0, lastElement);
     }
 }
