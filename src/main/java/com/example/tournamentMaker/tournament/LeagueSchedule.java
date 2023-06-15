@@ -7,7 +7,6 @@ import com.example.tournamentMaker.tournament.round.RoundRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,9 +40,9 @@ public class LeagueSchedule implements ScheduleStrategy {
         List<Long> allTeamsIdsInCorrectOrder = addEvenItemsInReverseOrder(teamsId, oddItems);
 
         for (int i = 0; i < roundsAmount; i++) {
-            Round round = new Round(tournament);
+            Round round = new Round(i + 1, tournament);
             for (int j = 0; j < gamesAmount; j++) {
-                Game game = new Game(i + 1, allTeamsIdsInCorrectOrder.get(j),
+                Game game = new Game(allTeamsIdsInCorrectOrder.get(j),
                         allTeamsIdsInCorrectOrder.get(teamsAmount - 1 - j), round);
                 round.getGames().add(game);
             }
@@ -75,13 +74,6 @@ public class LeagueSchedule implements ScheduleStrategy {
         return new LinkedList<>(list.stream().filter(id -> list.indexOf(id) % 2 != 0).toList());
     }
 
-    private List<Long> getTeamIdList(Tournament tournament) {
-        return tournament.getTeamList()
-                .stream()
-                .map(Team::getId)
-                .toList();
-    }
-
     private void movePenultimateItemToFirstPosition(List<Long> list) {
         Long penultimateElement = list.get(list.size() - 2);
         list.remove(penultimateElement);
@@ -92,5 +84,12 @@ public class LeagueSchedule implements ScheduleStrategy {
         Long lastElement = list.get(list.size() - 1);
         list.remove(lastElement);
         list.add(0, lastElement);
+    }
+
+    private List<Long> getTeamIdList(Tournament tournament) {
+        return tournament.getTeamList()
+                .stream()
+                .map(Team::getId)
+                .toList();
     }
 }

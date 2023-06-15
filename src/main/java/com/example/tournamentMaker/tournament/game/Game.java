@@ -19,7 +19,6 @@ public class Game {
             updatable = false
     )
     private Long id;
-    private Integer turn;
     private Long hostId;
     private Long guestId;
     @Enumerated(EnumType.STRING)
@@ -35,10 +34,14 @@ public class Game {
     )
     private Round round;
 
-    public Game(Integer turn, Long hostId, Long guestId, Round round) {
-        this.turn = turn;
+    public Game(Long hostId, Long guestId, Round round) {
         this.hostId = hostId;
         this.guestId = guestId;
+        this.round = round;
+    }
+
+    public Game(Long hostId, Round round) {
+        this.hostId = hostId;
         this.round = round;
     }
 }

@@ -22,6 +22,7 @@ public class Round {
             updatable = false
     )
     private Long id;
+    private Integer turn;
     @ManyToOne
     @JoinColumn(
             name = "tournament_id",
@@ -40,7 +41,8 @@ public class Round {
     )
     private List<Game> games = new ArrayList<>();
 
-    public Round(Tournament tournament) {
+    public Round(Integer turn, Tournament tournament) {
+        this.turn = turn;
         this.tournament = tournament;
     }
 }
