@@ -39,4 +39,9 @@ public class Game {
         this.guestId = guestId;
         this.round = round;
     }
+
+    public Game(Long hostId, Round round) {
+        this.hostId = hostId;
+        this.round = round;
+    }
 }

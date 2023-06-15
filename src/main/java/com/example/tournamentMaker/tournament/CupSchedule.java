@@ -14,9 +14,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CupSchedule implements ScheduleStrategy {
+    private final static int FIRST_ROUND = 1;
     private final TournamentRepository tournamentRepository;
     private final RoundRepository roundRepository;
-    private final static int FIRST_ROUND = 1;
 
     @Override
     public void createSchedule(Tournament tournament) {
@@ -40,7 +40,7 @@ public class CupSchedule implements ScheduleStrategy {
             currentIndex += 2;
         }
         for (int i = 0; i < teamsWithoutOpponent; i++) {
-            Game game = new Game(teamsId.get(currentIndex++), null, round);
+            Game game = new Game(teamsId.get(currentIndex++), round);
             round.getGames().add(game);
         }
         roundRepository.save(round);
