@@ -21,8 +21,8 @@ public class Game {
     private Long id;
     private Long hostId;
     private Long guestId;
-    @Enumerated(EnumType.STRING)
-    private MatchResult hostMatchResult;
+    private Integer hostPoints;
+    private Integer guestPoints;
     @ManyToOne
     @JoinColumn(
             name = "round_id",
