@@ -6,6 +6,7 @@ import com.example.tournamentMaker.statistics.MatchResult;
 import com.example.tournamentMaker.statistics.Statistics;
 import com.example.tournamentMaker.statistics.StatisticsRepository;
 import com.example.tournamentMaker.team.Team;
+import com.example.tournamentMaker.team.TeamRepository;
 import com.example.tournamentMaker.team.player.FootballPlayer;
 import com.example.tournamentMaker.team.player.PlayerRepository;
 import com.example.tournamentMaker.tournament.Tournament;
@@ -22,7 +23,9 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class ResultService {
+    private static final int FIRST_POINT_SCORED = 1;
     private final TournamentRepository tournamentRepository;
+    private final TeamRepository teamRepository;
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
     private final StatisticsRepository statisticsRepository;
@@ -38,10 +41,10 @@ public class ResultService {
 
                     Round round = tournament.getRounds().stream()
                             .filter(r -> Objects.equals(r.getTurn(), footballResultRequest.getTurn()))
-                            .findAny().orElseThrow();
+                            .findAny().orElseThrow(() -> new NoSuchElementException("Specified round not found"));
                     Game game = round.getGames().stream()
                             .filter(g -> g.getHostId().equals(host.getId()))
-                            .findAny().orElseThrow();
+                            .findAny().orElseThrow(() -> new NoSuchElementException("There is no such home team in round"));
 
                     if (!game.getGuestId().equals(guest.getId())) {
                         throw new IllegalArgumentException("There are no games of these teams in this round");
@@ -55,7 +58,7 @@ public class ResultService {
                     FootballStatistics guestStatistics = (FootballStatistics) guest.getStatistics();
 
                     MatchResult hostResult = getHostResult(footballResultRequest);
-                    MatchResult guestResult = getGuestResult(hostResult);
+                    MatchResult guestResult = getOpposingTeamResult(hostResult);
                     addResultOfTheMatchToStatistics(hostResult, hostStatistics, guestStatistics);
 
                     updateRecentResult(hostResult, hostStatistics.getRecentMatchResults());
@@ -99,7 +102,7 @@ public class ResultService {
                     int currentValue = specificStatistic.get(p.getId());
                     specificStatistic.put(p.getId(), ++currentValue);
                 } else {
-                    specificStatistic.put(p.getId(), 1);
+                    specificStatistic.put(p.getId(), FIRST_POINT_SCORED);
                 }
             }, () -> {
                 throw new NoSuchElementException("There is no player with the given number in the team");
@@ -109,8 +112,8 @@ public class ResultService {
         }
     }
 
-    private MatchResult getGuestResult(MatchResult hostResult) {
-        switch (hostResult) {
+    private MatchResult getOpposingTeamResult(MatchResult result) {
+        switch (result) {
             case WIN -> {
                 return MatchResult.LOSE;
             }
@@ -128,19 +131,21 @@ public class ResultService {
         if (recentResult.size() < Constans.COLLECTED_MATCH_RESULTS_NUMBER) {
             recentResult.add(0, result);
         } else {
-            recentResult.remove(Constans.COLLECTED_MATCH_RESULTS_NUMBER - 1);
             recentResult.add(0, result);
+            recentResult.remove(Constans.COLLECTED_MATCH_RESULTS_NUMBER);
         }
     }
 
     private MatchResult getHostResult(FootballResultRequest footballResultRequest) {
-        if (footballResultRequest.getHostPoints() > footballResultRequest.getGuestPoints()) {
+        boolean draw = Objects.equals(footballResultRequest.getHostPoints(), footballResultRequest.getGuestPoints());
+        if (draw) {
+            return MatchResult.DRAW;
+        }
+        boolean homeTeamWin = footballResultRequest.getHostPoints() > footballResultRequest.getGuestPoints();
+        if (homeTeamWin) {
             return MatchResult.WIN;
         }
-        if (footballResultRequest.getHostPoints() < footballResultRequest.getGuestPoints()) {
-            return MatchResult.LOSE;
-        }
-        return MatchResult.DRAW;
+        return MatchResult.LOSE;
     }
 
     private void addResultOfTheMatchToStatistics(MatchResult hostResult, Statistics hostStatistics, Statistics guestStatistics) {
@@ -161,8 +166,8 @@ public class ResultService {
     }
 
     private Team findTeam(String teamName, Tournament tournament) {
-        return tournament.getTeamList().stream()
-                .filter(team -> team.getName().equals(teamName))
-                .findAny().orElseThrow();
+        return teamRepository.findByNameAndTournamentName(teamName, tournament.getName()).orElseThrow(
+                () -> new NoSuchElementException("No team was found with the given name for the tournament")
+        );
     }
 }
