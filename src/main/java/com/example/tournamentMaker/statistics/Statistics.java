@@ -16,7 +16,7 @@ import java.util.List;
 @DiscriminatorColumn(name = "statistics_type")
 @Getter
 @Setter
-public abstract class Statistics {
+public class Statistics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false)
