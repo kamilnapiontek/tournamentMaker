@@ -108,18 +108,17 @@ public class ResultService {
     private void updateSpecificStatisticInTeam(List<Integer> jerseyNumbersToIncrease, Team team, Map<Long, Integer> specificStatistic) {
         for (Integer number : jerseyNumbersToIncrease) {
             Optional<FootballPlayer> optionalPlayer = playerRepository.findByJerseyNumberAndTeam(number, team);
-            optionalPlayer.ifPresentOrElse(p -> {
-                if (specificStatistic.containsKey(p.getId())) {
-                    int increasedValue = specificStatistic.get(p.getId()) + 1;
-                    specificStatistic.put(p.getId(), increasedValue);
+            optionalPlayer.ifPresentOrElse(player -> {
+                if (specificStatistic.containsKey(player.getId())) {
+                    int statisticToIncrease = specificStatistic.get(player.getId());
+                    statisticToIncrease++;
+                    specificStatistic.put(player.getId(), statisticToIncrease);
                 } else {
-                    specificStatistic.put(p.getId(), FIRST_POINT_SCORED);
+                    specificStatistic.put(player.getId(), FIRST_POINT_SCORED);
                 }
             }, () -> {
                 throw new NoSuchElementException("There is no player with the given number in the team");
             });
-
-
         }
     }
 
