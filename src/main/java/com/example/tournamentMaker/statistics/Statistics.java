@@ -16,7 +16,7 @@ import java.util.List;
 @DiscriminatorColumn(name = "statistics_type")
 @Getter
 @Setter
-public abstract class Statistics {
+public class Statistics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false)
@@ -31,7 +31,7 @@ public abstract class Statistics {
     @Enumerated(EnumType.STRING)
     private List<MatchResult> recentMatchResults = new ArrayList<>();
 
-    public Statistics(Team team, Integer countWins, Integer countLoses, Integer countDraws) {
+    Statistics(Team team, Integer countWins, Integer countLoses, Integer countDraws) {
         this.team = team;
         this.countWins = countWins;
         this.countLoses = countLoses;

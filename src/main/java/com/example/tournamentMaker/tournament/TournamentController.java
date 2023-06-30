@@ -1,5 +1,6 @@
 package com.example.tournamentMaker.tournament;
 
+import com.example.tournamentMaker.tournament.result.FootballResultRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +30,12 @@ class TournamentController {
     @PreAuthorize("hasAuthority('admin:update')")
     void createSchedule(@RequestBody String tournamentName) {
         tournamentService.createSchedule(tournamentName);
+    }
+
+    @PostMapping("/launchFootballResult")
+    @PreAuthorize("hasAuthority('admin:update')")
+    void launchFootballResult(@RequestBody FootballResultRequest footballResultRequest) {
+        tournamentService.launchFootballResult(footballResultRequest);
     }
 
 }

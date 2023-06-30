@@ -2,6 +2,8 @@ package com.example.tournamentMaker.tournament;
 
 import com.example.tournamentMaker.constans.Constans;
 import com.example.tournamentMaker.tournament.enums.TournamentType;
+import com.example.tournamentMaker.tournament.result.FootballResultRequest;
+import com.example.tournamentMaker.tournament.result.ResultService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ class TournamentService {
     private final TournamentRepository tournamentRepository;
     private final LeagueSchedule leagueSchedule;
     private final CupSchedule cupSchedule;
+    private final ResultService resultService;
 
     void createTournament(TournamentRequest tournamentRequest) {
         Tournament tournament = new Tournament(
@@ -52,5 +55,9 @@ class TournamentService {
         }, () -> {
             throw new NoSuchElementException(Constans.NO_TOURNAMENT_FOUND);
         });
+    }
+
+    public void launchFootballResult(FootballResultRequest footballResultRequest) {
+        resultService.launchFootballResult(footballResultRequest);
     }
 }
