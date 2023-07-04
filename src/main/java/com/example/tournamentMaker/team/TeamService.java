@@ -47,7 +47,7 @@ class TeamService {
         });
     }
 
-    private static FootballStatistics createFootballStatistics(Team team) {
+    private FootballStatistics createFootballStatistics(Team team) {
         return new FootballStatistics(team, 0, 0, 0, 0, 0);
     }
 
@@ -60,7 +60,7 @@ class TeamService {
                 playerRepository.save(player);
                 t.getPlayers().add(player);
                 teamRepository.save(t);
-            } else throw new IllegalArgumentException("Player with this number already exist in team");
+            } else throw new IllegalArgumentException("Player with" + request.getJerseyNumber() + "already exist in team");
 
         }, () -> {
             throw new NoSuchElementException(Constans.NO_TOURNAMENT_FOUND);
@@ -71,5 +71,35 @@ class TeamService {
         return team.getPlayers().stream()
                 .map(player -> (FootballPlayer) player)
                 .anyMatch(footballPlayer -> Objects.equals(footballPlayer.getJerseyNumber(), jerseyNumber));
+    }
+
+    public void createFootballTeamsWithPlayers(FootballTeamsAndPlayersRequest request) {
+        Optional<Tournament> tournament = tournamentRepository.findByName(request.getTournamentName());
+        tournament.ifPresentOrElse(t -> {
+            if (t.isRegistrationComplete())
+                throw new TournamentRegistrationException("Registration for this tournament is now closed");
+            else {
+                for (FootballTeamRequest teamRequest : request.getTeams()) {
+                    Team team = new Team(teamRequest.getTeamName(), t);
+                    FootballStatistics footballStatistics = createFootballStatistics(team);
+                    team.setStatistics(footballStatistics);
+                    teamRepository.save(team);
+
+                    for (FootballPlayerRequestWithoutGivingTeamName playerRequest : teamRequest.getPlayers()) {
+                        if (!isPlayerWithNumber(team, playerRequest.getJerseyNumber())) {
+                            FootballPlayer player = new FootballPlayer(playerRequest.getFirstName(), playerRequest.getLastName(),
+                                    team, playerRequest.getJerseyNumber(), playerRequest.getFootballPosition());
+                            playerRepository.save(player);
+                            team.getPlayers().add(player);
+                        } else throw new IllegalArgumentException("Player with" + playerRequest.getJerseyNumber() + "already exist in team");
+                    }
+                    teamRepository.save(team);
+                }
+            }
+
+        }, () -> {
+            throw new NoSuchElementException(Constans.NO_TOURNAMENT_FOUND);
+        });
+
     }
 }
