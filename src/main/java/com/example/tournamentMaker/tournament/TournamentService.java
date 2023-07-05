@@ -27,7 +27,7 @@ class TournamentService {
     void finishRegistration(String tournamentName) {
         Optional<Tournament> optionalTournament = tournamentRepository.findByName(tournamentName);
         optionalTournament.ifPresentOrElse(tournament -> {
-                    tournament.setRegistrationComplete(true);
+                    tournament.setRegistrationCompleted(true);
                     tournamentRepository.save(tournament);
                 },
                 () -> {
@@ -41,7 +41,7 @@ class TournamentService {
             if (tournament.getTeamList().size() < Constans.MINIMUM_TEAMS_NUMBER) {
                 throw new IllegalArgumentException("Tournament does not have the required number of teams");
             }
-            tournament.setRegistrationComplete(true);
+            tournament.setRegistrationCompleted(true);
             tournamentRepository.save(tournament);
             TournamentType type = tournament.getTournamentType();
             switch (type) {

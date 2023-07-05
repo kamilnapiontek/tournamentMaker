@@ -6,9 +6,9 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class FootballPlayerRequestWithoutGivingTeamName {
-    private String firstName;
-    private String lastName;
+class FootballPlayerRequestWithoutGivingTeamName {
+    private final String firstName;
+    private final String lastName;
     private final Integer jerseyNumber;
     private final FootballPosition footballPosition;
 }

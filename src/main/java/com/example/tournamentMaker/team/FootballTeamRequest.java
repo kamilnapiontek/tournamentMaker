@@ -8,6 +8,6 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 class FootballTeamRequest {
-    private String teamName;
-    private List<FootballPlayerRequestWithoutGivingTeamName> players;
+    private final String teamName;
+    private final List<FootballPlayerRequestWithoutGivingTeamName> players;
 }
