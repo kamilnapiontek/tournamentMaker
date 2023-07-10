@@ -30,7 +30,7 @@ public class Tournament {
     private TournamentType tournamentType;
     @Enumerated(EnumType.STRING)
     private Sport sport;
-    private boolean RegistrationComplete = false;
+    private boolean registrationCompleted = false;
 
     @OneToMany(
             mappedBy = "tournament",

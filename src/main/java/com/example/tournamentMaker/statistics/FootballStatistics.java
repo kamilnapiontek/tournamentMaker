@@ -42,9 +42,9 @@ public class FootballStatistics extends Statistics {
     @Column(name = "clean_sheets")
     private Map<Long, Integer> playersIdWithCleanSheets;
 
-    public FootballStatistics(Team team, Integer countWins, Integer countLoses, Integer countDraws, Integer goalsScored, Integer goalsConceded) {
-        super(team, countWins, countLoses, countDraws);
-        this.goalsScored = goalsScored;
-        this.goalsConceded = goalsConceded;
+    public FootballStatistics(Team team) {
+        super(team, 0, 0, 0);
+        this.goalsScored = 0;
+        this.goalsConceded = 0;
     }
 }

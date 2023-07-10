@@ -24,4 +24,10 @@ class TeamController {
     void addFootballPlayer(@RequestBody FootballPlayerRequest footballPlayerRequest) {
         teamService.addFootballPlayer(footballPlayerRequest);
     }
+
+    @PostMapping("/createFootballTeamsWithPlayers")
+    @PreAuthorize("hasAuthority('admin:update')")
+    void createFootballTeamsWithPlayers(@RequestBody FootballTeamsAndPlayersRequest footballTeamsAndPlayersRequest) {
+        teamService.createFootballTeamsWithPlayers(footballTeamsAndPlayersRequest);
+    }
 }
