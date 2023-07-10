@@ -23,8 +23,8 @@ class TournamentController {
 //    @PreAuthorize("hasAnyRole('ADMIN','DB-ADMIN')")
     @PostMapping("/finishRegistration")
     @PreAuthorize("hasAuthority('admin:update')")
-    void finishRegistration(@RequestBody String tournamentName) {
-        tournamentService.finishRegistration(tournamentName);
+    boolean finishRegistration(@RequestBody String tournamentName) {
+        return tournamentService.finishRegistration(tournamentName);
     }
     @PostMapping("/createSchedule")
     @PreAuthorize("hasAuthority('admin:update')")

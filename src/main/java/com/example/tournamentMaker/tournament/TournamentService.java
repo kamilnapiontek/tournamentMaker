@@ -24,7 +24,7 @@ class TournamentService {
         tournamentRepository.save(tournament);
     }
 
-    void finishRegistration(String tournamentName) {
+    boolean finishRegistration(String tournamentName) {
         Optional<Tournament> optionalTournament = tournamentRepository.findByName(tournamentName);
         optionalTournament.ifPresentOrElse(tournament -> {
                     tournament.setRegistrationCompleted(true);
@@ -33,6 +33,7 @@ class TournamentService {
                 () -> {
                     throw new NoSuchElementException(Constans.NO_TOURNAMENT_FOUND);
                 });
+        return true;
     }
 
     void createSchedule(String tournamentName) {

@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 class TournamentRequest {
-    private String name;
+    private final String name;
     private Sport sport;
     private TournamentType tournamentType;
 
