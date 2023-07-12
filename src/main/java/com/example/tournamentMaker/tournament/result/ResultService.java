@@ -30,17 +30,17 @@ public class ResultService {
     private final PlayerRepository playerRepository;
     private final FootballStatisticsRepository footballStatisticsRepository;
 
-    public void launchFootballResult(FootballResultRequest footballResultRequest) {
-        Optional<Tournament> optionalTournament = tournamentRepository.findByName(footballResultRequest.getTournamentName());
+    public void launchFootballResult(FootballResultRequest request) {
+        Optional<Tournament> optionalTournament = tournamentRepository.findByName(request.getTournamentName());
         optionalTournament.ifPresentOrElse(tournament -> {
                     if (!tournament.getSport().equals(Sport.FOOTBALL)) {
                         throw new IllegalArgumentException("This is not a football tournament");
                     }
-                    Team host = findTeam(footballResultRequest.getHostName(), tournament);
-                    Team guest = findTeam(footballResultRequest.getGuestName(), tournament);
+                    Team host = findTeam(request.getHostName(), tournament);
+                    Team guest = findTeam(request.getGuestName(), tournament);
 
                     Round round = tournament.getRounds().stream()
-                            .filter(r -> Objects.equals(r.getTurn(), footballResultRequest.getTurn()))
+                            .filter(r -> Objects.equals(r.getTurn(), request.getTurn()))
                             .findAny().orElseThrow(() -> new NoSuchElementException("Specified round not found"));
                     Game game = round.getGames().stream()
                             .filter(g -> g.getHostId().equals(host.getId()))
@@ -50,8 +50,8 @@ public class ResultService {
                         throw new IllegalArgumentException("There are no games of these teams in this round");
                     }
 
-                    game.setHostPoints(footballResultRequest.getHostPoints());
-                    game.setGuestPoints(footballResultRequest.getGuestPoints());
+                    game.setHostPoints(request.getHostPoints());
+                    game.setGuestPoints(request.getGuestPoints());
                     gameRepository.save(game);
 
                     FootballStatistics hostStatistics = footballStatisticsRepository.findByTeamId(host.getId())
@@ -59,16 +59,16 @@ public class ResultService {
                     FootballStatistics guestStatistics = footballStatisticsRepository.findByTeamId(guest.getId())
                             .orElseThrow(() -> new NoSuchElementException("Stats for the guest team could not be found"));
 
-                    updateGoalsCount(footballResultRequest, hostStatistics, guestStatistics);
+                    updateGoalsCount(request.getHostPoints(), request.getGuestPoints(), hostStatistics, guestStatistics);
 
-                    MatchResult hostResult = getHostResult(footballResultRequest);
+                    MatchResult hostResult = getHostResult(request.getHostPoints(), request.getGuestPoints());
                     MatchResult guestResult = getOpposingTeamResult(hostResult);
                     addResultOfTheMatchToStatistics(hostResult, hostStatistics, guestStatistics);
 
                     updateRecentResult(hostResult, hostStatistics.getRecentMatchResults());
                     updateRecentResult(guestResult, guestStatistics.getRecentMatchResults());
 
-                    updateStatisticsForIndividualPlayers(footballResultRequest, host, guest, hostStatistics, guestStatistics);
+                    updateStatisticsForIndividualPlayers(request, host, guest, hostStatistics, guestStatistics);
 
                     footballStatisticsRepository.save(hostStatistics);
                     footballStatisticsRepository.save(guestStatistics);
@@ -78,11 +78,11 @@ public class ResultService {
                 });
     }
 
-    private static void updateGoalsCount(FootballResultRequest footballResultRequest, FootballStatistics hostStatistics, FootballStatistics guestStatistics) {
-        hostStatistics.setGoalsScored(hostStatistics.getGoalsScored() + footballResultRequest.getHostPoints());
-        hostStatistics.setGoalsConceded(hostStatistics.getGoalsConceded() + footballResultRequest.getGuestPoints());
-        guestStatistics.setGoalsScored(guestStatistics.getGoalsScored() + footballResultRequest.getGuestPoints());
-        guestStatistics.setGoalsConceded(guestStatistics.getGoalsConceded() + footballResultRequest.getHostPoints());
+    public void updateGoalsCount(int hostPoints, int guestPoints, FootballStatistics hostStatistics, FootballStatistics guestStatistics) {
+        hostStatistics.setGoalsScored(hostStatistics.getGoalsScored() + hostPoints);
+        hostStatistics.setGoalsConceded(hostStatistics.getGoalsConceded() + guestPoints);
+        guestStatistics.setGoalsScored(guestStatistics.getGoalsScored() + guestPoints);
+        guestStatistics.setGoalsConceded(guestStatistics.getGoalsConceded() + hostPoints);
     }
 
     private void updateStatisticsForIndividualPlayers(FootballResultRequest request, Team host, Team guest, FootballStatistics hostStatistics, FootballStatistics guestStatistics) {
@@ -105,7 +105,8 @@ public class ResultService {
                 guest, guestStatistics.getPlayersIdWithCleanSheets());
     }
 
-    private void updateSpecificStatisticInTeam(List<Integer> jerseyNumbersToIncrease, Team team, Map<Long, Integer> specificStatistic) {
+    public void updateSpecificStatisticInTeam(List<Integer> jerseyNumbersToIncrease, Team team, Map<Long, Integer> specificStatistic) {
+        if (jerseyNumbersToIncrease == null) return;
         for (Integer number : jerseyNumbersToIncrease) {
             Optional<FootballPlayer> optionalPlayer = playerRepository.findByJerseyNumberAndTeam(number, team);
             optionalPlayer.ifPresentOrElse(player -> {
@@ -122,7 +123,7 @@ public class ResultService {
         }
     }
 
-    private MatchResult getOpposingTeamResult(MatchResult result) {
+    public MatchResult getOpposingTeamResult(MatchResult result) {
         switch (result) {
             case WIN -> {
                 return MatchResult.LOSE;
@@ -137,26 +138,26 @@ public class ResultService {
         }
     }
 
-    private void updateRecentResult(MatchResult result, List<MatchResult> recentResult) {
+    public void updateRecentResult(MatchResult result, List<MatchResult> recentResult) {
         recentResult.add(0, result);
         if (recentResult.size() > Constans.COLLECTED_MATCH_RESULTS_NUMBER) {
             recentResult.remove(Constans.COLLECTED_MATCH_RESULTS_NUMBER);
         }
     }
 
-    private MatchResult getHostResult(FootballResultRequest footballResultRequest) {
-        boolean draw = Objects.equals(footballResultRequest.getHostPoints(), footballResultRequest.getGuestPoints());
+    public MatchResult getHostResult(int hostPoints, int guestPoints) {
+        boolean draw = Objects.equals(hostPoints, guestPoints);
         if (draw) {
             return MatchResult.DRAW;
         }
-        boolean homeTeamWin = footballResultRequest.getHostPoints() > footballResultRequest.getGuestPoints();
+        boolean homeTeamWin = hostPoints > guestPoints;
         if (homeTeamWin) {
             return MatchResult.WIN;
         }
         return MatchResult.LOSE;
     }
 
-    private void addResultOfTheMatchToStatistics(MatchResult hostResult, Statistics hostStatistics, Statistics guestStatistics) {
+    public void addResultOfTheMatchToStatistics(MatchResult hostResult, Statistics hostStatistics, Statistics guestStatistics) {
         switch (hostResult) {
             case WIN -> {
                 hostStatistics.setCountWins(hostStatistics.getCountWins() + 1);
