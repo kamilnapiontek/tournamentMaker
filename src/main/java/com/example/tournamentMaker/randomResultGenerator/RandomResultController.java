@@ -14,8 +14,8 @@ class RandomResultController {
     private final RandomResultService randomResultService;
     @PostMapping
     @PreAuthorize("hasAuthority('admin:update')")
-    void drawRoundsResults(@RequestBody RandomResultRequest randomResultRequest) {
-        randomResultService.drawRoundsResults(randomResultRequest);
+    void drawLotRoundsResults(@RequestBody RandomResultRequest randomResultRequest) {
+        randomResultService.drawLotRoundsResults(randomResultRequest);
     }
 
 }
