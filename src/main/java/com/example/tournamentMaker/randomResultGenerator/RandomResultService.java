@@ -54,7 +54,8 @@ class RandomResultService {
                 Round round = tournament.getRounds().get(roundNumber);
                 drawLotFootballRoundResult(round);
             } catch (ArrayIndexOutOfBoundsException e) {
-                logger.error("There is no round with index " + (roundNumber - 1));
+                logger.error("There is no round with index " + (roundNumber - 1) +
+                        " check if a tournament schedule has been created");
             }
         });
     }
@@ -109,13 +110,14 @@ class RandomResultService {
         updateStatisticsForTeam(guestStatistics, guest, guestJerseyNumbersGoalScorers,
                 guestJerseyNumbersWithYellowCard, guestJerseyNumberWithRedCard);
 
-        if (teamScoredZeroGoals(hostPoints)) {
+        updateCleanSheetStatistics(hostPoints, guestStatistics, guest);
+        updateCleanSheetStatistics(guestPoints, hostStatistics, host);
+    }
+
+    private void updateCleanSheetStatistics(int opponentPoints, FootballStatistics footballStatistics, Team team) {
+        if (teamScoredZeroGoals(opponentPoints)) {
             resultService.updateSpecificStatisticInTeam(List.of(findJerseyNumberPlayerInSpecificPosition
-                    (guest, FootballPosition.GOALKEEPER)), guest, guestStatistics.getPlayersIdWithCleanSheets());
-        }
-        if (teamScoredZeroGoals(guestPoints)) {
-            resultService.updateSpecificStatisticInTeam(List.of(findJerseyNumberPlayerInSpecificPosition
-                    (host, FootballPosition.GOALKEEPER)), host, hostStatistics.getPlayersIdWithCleanSheets());
+                    (team, FootballPosition.GOALKEEPER)), team, footballStatistics.getPlayersIdWithCleanSheets());
         }
     }
 

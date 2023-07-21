@@ -16,12 +16,12 @@ import com.example.tournamentMaker.tournament.game.Game;
 import com.example.tournamentMaker.tournament.game.GameRepository;
 import com.example.tournamentMaker.tournament.round.Round;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ResultService {
@@ -31,7 +31,6 @@ public class ResultService {
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
     private final FootballStatisticsRepository footballStatisticsRepository;
-    private final Logger logger = LoggerFactory.getLogger(ResultService.class);
 
     public void launchFootballResult(FootballResultRequest request) {
         Optional<Tournament> optionalTournament = tournamentRepository.findByName(request.getTournamentName());
@@ -53,7 +52,7 @@ public class ResultService {
                         throw new IllegalArgumentException("There are no games of these teams in this round");
                     }
 
-                    setHostAndGuestPoints(request, game);
+                    setAndSavePointsForBothTeams(request, game);
 
                     FootballStatistics hostStatistics = footballStatisticsRepository.findByTeamId(host.getId())
                             .orElseThrow(() -> new NoSuchElementException("Stats for the home team could not be found"));
@@ -86,7 +85,7 @@ public class ResultService {
         updateRecentResult(guestResult, guestStatistics.getRecentMatchResults());
     }
 
-    private void setHostAndGuestPoints(FootballResultRequest request, Game game) {
+    private void setAndSavePointsForBothTeams(FootballResultRequest request, Game game) {
         game.setHostPoints(request.getHostPoints());
         game.setGuestPoints(request.getGuestPoints());
         gameRepository.save(game);
@@ -117,7 +116,7 @@ public class ResultService {
 
     public void updateSpecificStatisticInTeam(List<Integer> jerseyNumbersList, Team team, Map<Long, Integer> specificStatistic) {
         if (jerseyNumbersList == null) {
-            logger.info("Lack of players to increase stats");
+            log.info("Lack of players to increase stats");
             return;
         }
         for (Integer number : jerseyNumbersList) {
@@ -163,11 +162,7 @@ public class ResultService {
         if (draw) {
             return MatchResult.DRAW;
         }
-        boolean homeTeamWin = hostPoints > guestPoints;
-        if (homeTeamWin) {
-            return MatchResult.WIN;
-        }
-        return MatchResult.LOSE;
+        return hostPoints > guestPoints ? MatchResult.WIN : MatchResult.LOSE;
     }
 
     public void addResultOfTheMatchToStatistics(MatchResult hostResult, Statistics hostStatistics, Statistics guestStatistics) {
