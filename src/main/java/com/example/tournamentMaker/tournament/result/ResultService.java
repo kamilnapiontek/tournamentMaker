@@ -136,18 +136,11 @@ public class ResultService {
     }
 
     public MatchResult getOpposingTeamResult(MatchResult result) {
-        switch (result) {
-            case WIN -> {
-                return MatchResult.LOSE;
-            }
-            case LOSE -> {
-                return MatchResult.WIN;
-            }
-            case DRAW -> {
-                return MatchResult.DRAW;
-            }
-            default -> throw new IllegalArgumentException("The correct result of the match was not given");
-        }
+        return switch (result) {
+            case WIN -> MatchResult.LOSE;
+            case LOSE -> MatchResult.WIN;
+            case DRAW -> MatchResult.DRAW;
+        };
     }
 
     public void updateRecentResult(MatchResult result, List<MatchResult> recentResult) {

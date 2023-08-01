@@ -96,22 +96,19 @@ class RandomResultService {
     }
 
     private void updateSpecificStatistics(int hostPoints, int guestPoints, FootballStatistics hostStatistics, FootballStatistics guestStatistics, Team host, Team guest) {
-        List<Integer> hostJerseyNumbersGoalScorers = drawLotJerseyNumbersGoalScorers(hostPoints, host);
-        List<Integer> guestJerseyNumbersGoalScorers = drawLotJerseyNumbersGoalScorers(guestPoints, guest);
+        updateSpecificStatisticsForTeam(hostPoints, guestPoints, hostStatistics, host);
+        updateSpecificStatisticsForTeam(guestPoints, hostPoints, guestStatistics, guest);
+    }
+
+    private void updateSpecificStatisticsForTeam(int points, int opponentPoints, FootballStatistics statistics, Team team) {
+        List<Integer> hostJerseyNumbersGoalScorers = drawLotJerseyNumbersGoalScorers(points, team);
         List<Integer> hostJerseyNumbersWithYellowCard = drawLotUniqueJerseyNumbers(RandomUtil.generateRandomNumber
-                (MIN_YELLOW_CARDS_IN_MATCH, MAX_YELLOW_CARDS_IN_MATCH), host);
-        List<Integer> guestJerseyNumbersWithYellowCard = drawLotUniqueJerseyNumbers(RandomUtil.generateRandomNumber
-                (MIN_YELLOW_CARDS_IN_MATCH, MAX_YELLOW_CARDS_IN_MATCH), guest);
-        List<Integer> hostJerseyNumbersWithRedCard = drawLotUniqueJerseyNumbers(RandomUtil.getRandomRedCardCount(), host);
-        List<Integer> guestJerseyNumberWithRedCard = drawLotUniqueJerseyNumbers(RandomUtil.getRandomRedCardCount(), guest);
+                (MIN_YELLOW_CARDS_IN_MATCH, MAX_YELLOW_CARDS_IN_MATCH), team);
+        List<Integer> hostJerseyNumbersWithRedCard = drawLotUniqueJerseyNumbers(RandomUtil.getRandomRedCardCount(), team);
 
-        updateStatisticsForTeam(hostStatistics, host, hostJerseyNumbersGoalScorers,
+        updateStatisticsForTeam(statistics, team, hostJerseyNumbersGoalScorers,
                 hostJerseyNumbersWithYellowCard, hostJerseyNumbersWithRedCard);
-        updateStatisticsForTeam(guestStatistics, guest, guestJerseyNumbersGoalScorers,
-                guestJerseyNumbersWithYellowCard, guestJerseyNumberWithRedCard);
-
-        updateCleanSheetStatistics(hostPoints, guestStatistics, guest);
-        updateCleanSheetStatistics(guestPoints, hostStatistics, host);
+        updateCleanSheetStatistics(opponentPoints, statistics, team);
     }
 
     private void updateCleanSheetStatistics(int opponentPoints, FootballStatistics footballStatistics, Team team) {
@@ -135,7 +132,7 @@ class RandomResultService {
 
     private int findJerseyNumberPlayerInSpecificPosition(Team team, FootballPosition position) {
         return team.getPlayers().stream()
-                .map(player -> (FootballPlayer) player)
+                .map(FootballPlayer.class::cast)
                 .filter(footballPlayer -> footballPlayer.getFootballPosition().equals(position))
                 .findAny()
                 .orElseThrow(NoSuchElementException::new)
