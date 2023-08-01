@@ -101,13 +101,13 @@ class RandomResultService {
     }
 
     private void updateSpecificStatisticsForTeam(int points, int opponentPoints, FootballStatistics statistics, Team team) {
-        List<Integer> hostJerseyNumbersGoalScorers = drawLotJerseyNumbersGoalScorers(points, team);
-        List<Integer> hostJerseyNumbersWithYellowCard = drawLotUniqueJerseyNumbers(RandomUtil.generateRandomNumber
+        List<Integer> jerseyNumbersGoalScorers = drawLotJerseyNumbersGoalScorers(points, team);
+        List<Integer> jerseyNumbersWithYellowCard = drawLotUniqueJerseyNumbers(RandomUtil.generateRandomNumber
                 (MIN_YELLOW_CARDS_IN_MATCH, MAX_YELLOW_CARDS_IN_MATCH), team);
-        List<Integer> hostJerseyNumbersWithRedCard = drawLotUniqueJerseyNumbers(RandomUtil.getRandomRedCardCount(), team);
+        List<Integer> jerseyNumbersWithRedCard = drawLotUniqueJerseyNumbers(RandomUtil.getRandomRedCardCount(), team);
 
-        updateStatisticsForTeam(statistics, team, hostJerseyNumbersGoalScorers,
-                hostJerseyNumbersWithYellowCard, hostJerseyNumbersWithRedCard);
+        updateStatisticsForTeam(statistics, team, jerseyNumbersGoalScorers, jerseyNumbersWithYellowCard,
+                jerseyNumbersWithRedCard);
         updateCleanSheetStatistics(opponentPoints, statistics, team);
     }
 
