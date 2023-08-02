@@ -17,7 +17,6 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id")
 public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
