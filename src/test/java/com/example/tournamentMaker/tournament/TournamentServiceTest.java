@@ -19,7 +19,7 @@ class TournamentServiceTest {
     @InjectMocks
     private TournamentService tournamentService;
     @Mock
-    TournamentRepository tournamentRepository;
+    private TournamentRepository tournamentRepository;
 
     @Test
     void shouldReturnTrueWhenRegistrationSuccessful() {

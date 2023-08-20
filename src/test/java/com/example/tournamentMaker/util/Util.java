@@ -8,15 +8,18 @@ import com.example.tournamentMaker.tournament.enums.Sport;
 import com.example.tournamentMaker.tournament.enums.TournamentType;
 
 public class Util {
-    public Team createTeam(String name) {
+    private Util() {
+    }
+
+    public static Team createTeam(String name) {
         return new Team(name, createTournament());
     }
 
-    public Tournament createTournament() {
+    public static Tournament createTournament() {
         return new Tournament("Tournament A", TournamentType.LEAGUE, Sport.FOOTBALL);
     }
 
-    public FootballPlayer createFootballPlayer(long id, String firstName, Team team, int jerseyNumber) {
+    public static FootballPlayer createFootballPlayer(long id, String firstName, Team team, int jerseyNumber) {
         FootballPlayer player = new FootballPlayer(firstName, "LastName", team, jerseyNumber, FootballPosition.MIDFIELDER);
         player.setId(id);
         return player;

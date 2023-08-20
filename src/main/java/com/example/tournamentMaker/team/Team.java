@@ -4,7 +4,6 @@ import com.example.tournamentMaker.statistics.Statistics;
 import com.example.tournamentMaker.team.player.Player;
 import com.example.tournamentMaker.tournament.Tournament;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface PlayerRepository extends JpaRepository<Player, Integer> {
     Optional<FootballPlayer> findByJerseyNumberAndTeam(int jerseyNumber, Team team);
+    Optional<FootballPlayer> findById(Long id);
 }

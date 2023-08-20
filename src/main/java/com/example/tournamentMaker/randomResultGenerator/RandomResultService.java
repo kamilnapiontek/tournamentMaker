@@ -10,8 +10,11 @@ import com.example.tournamentMaker.team.player.FootballPlayer;
 import com.example.tournamentMaker.team.player.FootballPosition;
 import com.example.tournamentMaker.tournament.Tournament;
 import com.example.tournamentMaker.tournament.TournamentRepository;
+import com.example.tournamentMaker.tournament.enums.TournamentType;
+import com.example.tournamentMaker.tournament.game.Game;
 import com.example.tournamentMaker.tournament.game.GameRepository;
 import com.example.tournamentMaker.tournament.result.ResultService;
+import com.example.tournamentMaker.tournament.round.CupRoundService;
 import com.example.tournamentMaker.tournament.round.Round;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -31,6 +34,7 @@ class RandomResultService {
     private final GameRepository gameRepository;
     private final FootballStatisticsRepository footballStatisticsRepository;
     private final ResultService resultService;
+    private final CupRoundService cupRoundService;
     private final TeamRepository teamRepository;
     private static final int MIN_YELLOW_CARDS_IN_MATCH = 0;
     private static final int MAX_YELLOW_CARDS_IN_MATCH = 3;
@@ -53,6 +57,9 @@ class RandomResultService {
             try {
                 Round round = tournament.getRounds().get(roundNumber);
                 drawLotFootballRoundResult(round);
+                if (tournament.getTournamentType() == TournamentType.CUP && !isLastRound(tournament, round)) {
+                    cupRoundService.createNextRoundSchedule(tournament, round);
+                }
             } catch (ArrayIndexOutOfBoundsException e) {
                 logger.error("There is no round with index " + (roundNumber - 1) +
                         " check if a tournament schedule has been created");
@@ -60,39 +67,48 @@ class RandomResultService {
         });
     }
 
+    private boolean isLastRound(Tournament tournament, Round round) {
+        return tournament.getRounds().size() == round.getTurn();
+    }
+
     private void drawLotFootballRoundResult(Round round) {
         round.getGames().forEach(game -> {
-            int hostPoints = RandomUtil.getRandomGoalsNumber();
-            int guestPoints = RandomUtil.getRandomGoalsNumber();
-
-            game.setHostPoints(hostPoints);
-            game.setGuestPoints(guestPoints);
-            gameRepository.save(game);
-
-            FootballStatistics hostStatistics = footballStatisticsRepository.findByTeamId(game.getHostId())
-                    .orElseThrow(() -> new NoSuchElementException("Stats for the home team could not be found"));
-            FootballStatistics guestStatistics = footballStatisticsRepository.findByTeamId(game.getGuestId())
-                    .orElseThrow(() -> new NoSuchElementException("Stats for the guest team could not be found"));
-
-            resultService.updateGoalsCount(hostPoints, guestPoints, hostStatistics, guestStatistics);
-
-            Team host = teamRepository.findById(game.getHostId())
-                    .orElseThrow(() -> new NoSuchElementException(Constans.NO_TEAM_FOUND));
-            Team guest = teamRepository.findById(game.getGuestId())
-                    .orElseThrow(() -> new NoSuchElementException(Constans.NO_TEAM_FOUND));
-
-            updateSpecificStatistics(hostPoints, guestPoints, hostStatistics, guestStatistics, host, guest);
-
-            MatchResult hostResult = resultService.getHostResult(hostPoints, guestPoints);
-            MatchResult guestResult = resultService.getOpposingTeamResult(hostResult);
-            resultService.addResultOfTheMatchToStatistics(hostResult, hostStatistics, guestStatistics);
-
-            resultService.updateRecentResult(hostResult, hostStatistics.getRecentMatchResults());
-            resultService.updateRecentResult(guestResult, guestStatistics.getRecentMatchResults());
-
-            footballStatisticsRepository.save(hostStatistics);
-            footballStatisticsRepository.save(guestStatistics);
+            if (!cupRoundService.isBye(game)) {
+                drawLotFootballGameResult(game);
+            }
         });
+    }
+    private void drawLotFootballGameResult(Game game) {
+        int hostPoints = RandomUtil.getRandomGoalsNumber();
+        int guestPoints = RandomUtil.getRandomGoalsNumber();
+
+        game.setHostPoints(hostPoints);
+        game.setGuestPoints(guestPoints);
+        gameRepository.save(game);
+
+        FootballStatistics hostStatistics = footballStatisticsRepository.findByTeamId(game.getHostId())
+                .orElseThrow(() -> new NoSuchElementException("Stats for the home team could not be found"));
+        FootballStatistics guestStatistics = footballStatisticsRepository.findByTeamId(game.getGuestId())
+                .orElseThrow(() -> new NoSuchElementException("Stats for the guest team could not be found"));
+
+        resultService.updateGoalsCount(hostPoints, guestPoints, hostStatistics, guestStatistics);
+
+        Team host = teamRepository.findById(game.getHostId())
+                .orElseThrow(() -> new NoSuchElementException(Constans.NO_TEAM_FOUND));
+        Team guest = teamRepository.findById(game.getGuestId())
+                .orElseThrow(() -> new NoSuchElementException(Constans.NO_TEAM_FOUND));
+
+        updateSpecificStatistics(hostPoints, guestPoints, hostStatistics, guestStatistics, host, guest);
+
+        MatchResult hostResult = resultService.getHostResult(hostPoints, guestPoints);
+        MatchResult guestResult = resultService.getOpposingTeamResult(hostResult);
+        resultService.addResultOfTheMatchToStatistics(hostResult, hostStatistics, guestStatistics);
+
+        resultService.updateRecentResult(hostResult, hostStatistics.getRecentMatchResults());
+        resultService.updateRecentResult(guestResult, guestStatistics.getRecentMatchResults());
+
+        footballStatisticsRepository.save(hostStatistics);
+        footballStatisticsRepository.save(guestStatistics);
     }
 
     private void updateSpecificStatistics(int hostPoints, int guestPoints, FootballStatistics hostStatistics, FootballStatistics guestStatistics, Team host, Team guest) {

@@ -23,15 +23,14 @@ class ResultServiceTest {
     private ResultService resultService;
     @Mock
     private PlayerRepository playerRepository;
-    private final Util util = new Util();
 
     @Test
     void shouldUpdateGoalsCount() {
         //given
         int hostPoints = 3;
         int guestPoints = 2;
-        FootballStatistics hostStatistics = new FootballStatistics(util.createTeam("Team A"));
-        FootballStatistics guestStatistics = new FootballStatistics(util.createTeam("Team B"));
+        FootballStatistics hostStatistics = new FootballStatistics(Util.createTeam("Team A"));
+        FootballStatistics guestStatistics = new FootballStatistics(Util.createTeam("Team B"));
         //when
         resultService.updateGoalsCount(hostPoints, guestPoints, hostStatistics, guestStatistics);
         //then
@@ -47,9 +46,9 @@ class ResultServiceTest {
     void shouldUpdateSpecificStatisticInTeam() {
         //given
         List<Integer> jerseyNumbersList = List.of(5, 5, 7);
-        Team team = util.createTeam("Team A");
-        FootballPlayer player1 = util.createFootballPlayer(1L, "Jack", team, 5);
-        FootballPlayer player2 = util.createFootballPlayer(3L, "Will", team, 7);
+        Team team = Util.createTeam("Team A");
+        FootballPlayer player1 = Util.createFootballPlayer(1L, "Jack", team, 5);
+        FootballPlayer player2 = Util.createFootballPlayer(3L, "Will", team, 7);
         Map<Long, Integer> specificStatistic = new HashMap<>();
         specificStatistic.put(1L, 1);
         specificStatistic.put(3L, 22);
@@ -66,25 +65,25 @@ class ResultServiceTest {
     void shouldUpdateSpecificStatisticInTeamWhenNoPlayersInSpecificStatisticMap() {
         //given
         List<Integer> jerseyNumbersList = List.of(5, 5, 5, 5);
-        Team team = util.createTeam("Team A");
-        FootballPlayer player = util.createFootballPlayer(1L, "Jack", team, 5);
+        Team team = Util.createTeam("Team A");
+        FootballPlayer player = Util.createFootballPlayer(1L, "Jack", team, 5);
         Map<Long, Integer> specificStatistic = new HashMap<>();
         //when
         when(playerRepository.findByJerseyNumberAndTeam(5, team)).thenReturn(Optional.of(player));
         resultService.updateSpecificStatisticInTeam(jerseyNumbersList, team, specificStatistic);
         //then
-        assertEquals(4, specificStatistic.get(player.getId()));
+        int numberOfGoalsScoredByPlayerWithNumber5 = 4;
+        assertEquals(numberOfGoalsScoredByPlayerWithNumber5, specificStatistic.get(player.getId()));
     }
 
     @Test
     void shouldContainExceptionWhenPlayerWithJerseyNumberNotFound() {
         //given
         List<Integer> jerseyNumbersList = List.of(5);
-        Team team = util.createTeam("Team A");
-        Map<Long, Integer> specificStatistic = new HashMap<>();
+        Team team = Util.createTeam("Team A");
         //when
         Assertions.assertThrows(NoSuchElementException.class, () -> {
-            resultService.updateSpecificStatisticInTeam(jerseyNumbersList, team, specificStatistic);
+            resultService.updateSpecificStatisticInTeam(jerseyNumbersList, team, new HashMap<>());
         });
     }
 }
