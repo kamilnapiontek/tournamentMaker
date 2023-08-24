@@ -6,11 +6,11 @@ import com.example.tournamentMaker.team.player.FootballPosition;
 import com.example.tournamentMaker.tournament.Tournament;
 import com.example.tournamentMaker.tournament.enums.Sport;
 import com.example.tournamentMaker.tournament.enums.TournamentType;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Util {
-    private Util() {
-    }
-
     public static Team createTeam(String name) {
         return new Team(name, createTournament());
     }

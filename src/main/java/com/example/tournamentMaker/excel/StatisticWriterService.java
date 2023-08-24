@@ -22,9 +22,10 @@ import java.util.stream.Collectors;
 class StatisticWriterService {
     private final PlayerRepository playerRepository;
     private final FootballStatisticsRepository footballStatisticsRepository;
+    private static final int MAX_ROWS_AMOUNT = 11;
 
     void writeStatistic(XSSFSheet sheet, int rowStart, int colStart, Tournament tournament) {
-        ExcelUtil.createRows(sheet, 11);
+        ExcelUtil.createRows(sheet, MAX_ROWS_AMOUNT);
         List<Team> teamList = tournament.getTeamList();
 
         createStatisticTable(sheet, rowStart, colStart, teamList);

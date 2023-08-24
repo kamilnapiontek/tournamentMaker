@@ -6,6 +6,7 @@ import com.example.tournamentMaker.tournament.TournamentRepository;
 import com.example.tournamentMaker.tournament.enums.Sport;
 import com.example.tournamentMaker.tournament.enums.TournamentType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -28,9 +29,8 @@ class ExcelWriterService {
         if (sport == Sport.FOOTBALL) {
             if (type == TournamentType.CUP) {
                 return footballCupWriterService.writeTournamentInformation(tournament);
-            } else {
-                return footballLeagueWriterService.writeTournamentInformation(tournament);
             }
+            return footballLeagueWriterService.writeTournamentInformation(tournament);
         }
         return false;
     }

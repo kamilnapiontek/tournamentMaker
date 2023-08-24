@@ -7,14 +7,15 @@ import com.example.tournamentMaker.tournament.Tournament;
 import com.example.tournamentMaker.tournament.game.Game;
 import com.example.tournamentMaker.tournament.round.Round;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,18 +23,26 @@ import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 class FootballCupWriterService implements ExcelWriteStrategy {
-    private final String filePath = "D:\\tournamentMaker.xlsx";
+    @Value("${application.excel.file.path}")
+    private String filePath;
+    @Value("${application.excel.cup.path}")
+    private String cupPath;
+    private static final String SHEET_NAME = "Tournament ladder";
+    private static final int MAX_COLUMN_AMOUNT = 20;
+    private static final int TEAM_COLUMN_EXCEL_WIDTH = 30;
+    private static final int CONNECTING_COLUMN_EXCEL_WIDTH = 3;
+    private static final int COLUMN_WIDTH_UNIT = 256;
     private final TeamRepository teamRepository;
     private final StatisticWriterService statisticWriterService;
 
     @Override
     public boolean writeTournamentInformation(Tournament tournament) {
         XSSFWorkbook workbook = new XSSFWorkbook();
-        XSSFSheet sheet = workbook.createSheet("Tournament ladder");
+        XSSFSheet sheet = workbook.createSheet(SHEET_NAME);
 
         CellStyle teamCellStyle = workbook.createCellStyle();
         teamCellStyle.setFillForegroundColor(IndexedColors.AQUA.getIndex());
@@ -62,18 +71,17 @@ class FootballCupWriterService implements ExcelWriteStrategy {
 
     private void addCupPicture(XSSFWorkbook workbook, XSSFSheet sheet, int col, int row) {
         try (InputStream inputStream = FootballCupWriterService.class.getClassLoader().
-                getResourceAsStream("cup.jpg")) {
+                getResourceAsStream(cupPath)) {
 
             byte[] bytes = IOUtils.toByteArray(inputStream);
             int pictureIdx = workbook.addPicture(bytes, Workbook.PICTURE_TYPE_JPEG);
 
             XSSFDrawing drawing = sheet.createDrawingPatriarch();
-            XSSFClientAnchor ironManAnchor = new XSSFClientAnchor();
+            XSSFClientAnchor anchor = new XSSFClientAnchor();
+            anchor.setCol1(col);
+            anchor.setRow1(row);
 
-            ironManAnchor.setCol1(col);
-            ironManAnchor.setRow1(row);
-
-            Picture picture = drawing.createPicture(ironManAnchor, pictureIdx);
+            Picture picture = drawing.createPicture(anchor, pictureIdx);
             picture.resize();
 
         } catch (IOException e) {
@@ -126,7 +134,7 @@ class FootballCupWriterService implements ExcelWriteStrategy {
             workbook.write(dataOutputStream);
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("An error occurred while writing workbook to file");
             return false;
         }
     }
@@ -170,11 +178,11 @@ class FootballCupWriterService implements ExcelWriteStrategy {
     }
 
     private void setColumnWidth(XSSFSheet sheet) {
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < MAX_COLUMN_AMOUNT; i++) {
             if (i % 2 == 0) {
-                sheet.setColumnWidth(i, 30 * 256);
+                sheet.setColumnWidth(i, TEAM_COLUMN_EXCEL_WIDTH * COLUMN_WIDTH_UNIT);
             } else {
-                sheet.setColumnWidth(i, 3 * 256);
+                sheet.setColumnWidth(i, CONNECTING_COLUMN_EXCEL_WIDTH * COLUMN_WIDTH_UNIT);
             }
         }
     }
@@ -182,8 +190,9 @@ class FootballCupWriterService implements ExcelWriteStrategy {
     private void writeWinner(XSSFWorkbook workbook, XSSFSheet sheet, List<Round> rounds, CellStyle style, int rowCount, int columCount) {
         Row row = sheet.getRow(rowCount);
         Cell cell = row.createCell(columCount);
-        if (!rounds.get(rounds.size() - 1).getGames().isEmpty()) {
-            Game finalGame = rounds.get(rounds.size() - 1).getGames().get(0);
+        Round lastRound = rounds.get(rounds.size() - 1);
+        if (!lastRound.getGames().isEmpty()) {
+            Game finalGame = lastRound.getGames().get(0);
             cell.setCellValue(findWinnerTeamName(finalGame));
         }
         cell.setCellStyle(style);
