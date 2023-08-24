@@ -1,19 +1,27 @@
-package com.example.tournamentMaker.excel;
+package com.example.tournamentmaker.excel;
 
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.apache.poi.ss.usermodel.*;
 
-public class ExcelUtil {
-    static void setBorder(CellStyle cellStyle, BorderStyle borderStyle) {
-        cellStyle.setBorderTop(borderStyle);
-        cellStyle.setBorderBottom(borderStyle);
-        cellStyle.setBorderLeft(borderStyle);
-        cellStyle.setBorderRight(borderStyle);
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+class ExcelUtil {
+    static void setThinBorder(CellStyle cellStyle) {
+        cellStyle.setBorderTop(BorderStyle.THIN);
+        cellStyle.setBorderBottom(BorderStyle.THIN);
+        cellStyle.setBorderLeft(BorderStyle.THIN);
+        cellStyle.setBorderRight(BorderStyle.THIN);
     }
-    static void createRows(XSSFSheet sheet, int howMany) {
+    static void createRows(Sheet sheet, int howMany) {
         for (int i = 0; i < howMany; i++) {
             sheet.createRow(i);
         }
+    }
+    static CellStyle createCellStyle(Workbook workbook, short index) {
+        CellStyle cellStyle = workbook.createCellStyle();
+        cellStyle.setFillForegroundColor(index);
+        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        ExcelUtil.setThinBorder(cellStyle);
+        return cellStyle;
     }
 }
