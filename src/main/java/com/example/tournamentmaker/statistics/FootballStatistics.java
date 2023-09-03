@@ -43,7 +43,7 @@ public class FootballStatistics extends Statistics {
     private Map<Long, Integer> playersIdWithCleanSheets;
 
     public FootballStatistics(Team team) {
-        super(team, 0, 0, 0);
+        super(team, 0, 0, 0,0);
         this.goalsScored = 0;
         this.goalsConceded = 0;
     }

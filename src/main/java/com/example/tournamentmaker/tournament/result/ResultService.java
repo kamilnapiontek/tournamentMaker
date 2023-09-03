@@ -163,14 +163,18 @@ public class ResultService {
             case WIN -> {
                 hostStatistics.setCountWins(hostStatistics.getCountWins() + 1);
                 guestStatistics.setCountLoses(guestStatistics.getCountLoses() + 1);
+                hostStatistics.setPoints(hostStatistics.getPoints() + 3);
             }
             case LOSE -> {
                 guestStatistics.setCountWins(guestStatistics.getCountWins() + 1);
                 hostStatistics.setCountLoses(hostStatistics.getCountLoses() + 1);
+                guestStatistics.setPoints(guestStatistics.getPoints() + 3);
             }
             case DRAW -> {
                 hostStatistics.setCountDraws(hostStatistics.getCountDraws() + 1);
                 guestStatistics.setCountDraws(guestStatistics.getCountDraws() + 1);
+                hostStatistics.setPoints(hostStatistics.getPoints() + 1);
+                guestStatistics.setPoints(guestStatistics.getPoints() + 1);
             }
         }
     }
