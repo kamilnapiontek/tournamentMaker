@@ -26,7 +26,7 @@ public class FootballLeagueWriterService implements ExcelStrategy {
     private final Sheet sheet = workbook.createSheet(SHEET_NAME);
     private static final int TEAM_COLUMN_EXCEL_WIDTH = 26;
     private static final int COLUMN_WITH_NUMBER_EXCEL_WIDTH = 5;
-    private static final int LAST_5_COLUMN_EXCEL_WIDTH = 13;
+    private static final int LAST_5_COLUMN_EXCEL_WIDTH = 12;
     private static final int STATISTICS_COLUMN_START = 9;
     private static final int STATISTICS_ROW_START = 0;
     private final StatisticService statisticService = new StatisticService();
