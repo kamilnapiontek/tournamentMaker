@@ -41,3 +41,4 @@ public class Statistics {
         this.points = points;
     }
 }
+
