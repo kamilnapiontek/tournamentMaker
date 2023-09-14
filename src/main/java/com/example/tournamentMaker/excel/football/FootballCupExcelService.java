@@ -44,12 +44,13 @@ public class FootballCupExcelService implements ExcelStrategy {
 
         List<Round> rounds = tournament.getRounds();
         int firstRoundGamesAmount = rounds.get(0).getGames().size();
-        int numerRowsToCreate = firstRoundGamesAmount * 4 - 1;
+        final int ROWS_NEEDED_FOR_ONE_TEAM = 4;
+        int numerRowsToCreate = firstRoundGamesAmount * ROWS_NEEDED_FOR_ONE_TEAM - 1;
 
         ExcelUtil.createRows(sheetLadder, numerRowsToCreate);
         createTeamCells(rounds, teamCellStyle);
         connectTeamsWithColoredCells(rounds.size(), connectingCellStyle, numerRowsToCreate);
-        setColumnWidth();
+        setColumnsWidth();
 
         Sheet statisticsSheet = workbook.createSheet("Statistics");
         footballStatisticWriterService.writeStatistic(workbook, statisticsSheet, 0, 0, tournament);
@@ -71,7 +72,6 @@ public class FootballCupExcelService implements ExcelStrategy {
 
             Picture picture = drawing.createPicture(anchor, pictureIdx);
             picture.resize();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -155,7 +155,7 @@ public class FootballCupExcelService implements ExcelStrategy {
         }
     }
 
-    private void setColumnWidth() {
+    private void setColumnsWidth() {
         for (int i = 0; i < MAX_COLUMN_AMOUNT; i++) {
             if (i % 2 == 0) {
                 sheetLadder.setColumnWidth(i, TEAM_COLUMN_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);

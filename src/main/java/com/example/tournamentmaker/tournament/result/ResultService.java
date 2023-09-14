@@ -143,10 +143,10 @@ public class ResultService {
         };
     }
 
-    public void updateRecentResult(MatchResult result, List<MatchResult> recentResult) {
-        recentResult.add(0, result);
-        if (recentResult.size() > Constans.COLLECTED_MATCH_RESULTS_NUMBER) {
-            recentResult.remove(Constans.COLLECTED_MATCH_RESULTS_NUMBER);
+    public void updateRecentResult(MatchResult result, List<MatchResult> recentResults) {
+        recentResults.add(0, result);
+        if (recentResults.size() > Constans.COLLECTED_MATCH_RESULTS_NUMBER) {
+            recentResults.remove(Constans.COLLECTED_MATCH_RESULTS_NUMBER);
         }
     }
 

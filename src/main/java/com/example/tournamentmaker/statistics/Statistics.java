@@ -33,7 +33,7 @@ public class Statistics {
     @Enumerated(EnumType.STRING)
     private List<MatchResult> recentMatchResults = new ArrayList<>();
 
-    Statistics(Team team, Integer countWins, Integer countLoses, Integer countDraws, Integer points) {
+    public Statistics(Team team, Integer countWins, Integer countLoses, Integer countDraws, Integer points) {
         this.team = team;
         this.countWins = countWins;
         this.countLoses = countLoses;

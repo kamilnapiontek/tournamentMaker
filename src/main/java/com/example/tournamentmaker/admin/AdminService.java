@@ -13,7 +13,7 @@ import java.util.Optional;
 class AdminService {
     private final UserRepository userRepository;
 
-    public void switchRole(SwitchRequest switchRequest) {
+    void switchRole(SwitchRequest switchRequest) {
         Optional<User> userToSwitch = userRepository.findByEmail(switchRequest.getEmail());
         userToSwitch.ifPresentOrElse(user -> {
             user.setRole(switchRequest.getNewRole());

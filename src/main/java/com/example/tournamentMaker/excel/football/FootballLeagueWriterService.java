@@ -4,6 +4,7 @@ import com.example.tournamentmaker.excel.ExcelStrategy;
 import com.example.tournamentmaker.excel.ExcelUtil;
 import com.example.tournamentmaker.statistics.StatisticService;
 import com.example.tournamentmaker.statistics.Statistics;
+import com.example.tournamentmaker.team.Team;
 import com.example.tournamentmaker.tournament.Tournament;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
@@ -33,155 +34,82 @@ public class FootballLeagueWriterService implements ExcelStrategy {
 
     @Override
     public boolean writeTournamentInformation(Tournament tournament) {
-        CellStyle borderCellStyle = ExcelUtil.createCellStyle(workbook, IndexedColors.GOLD.getIndex());
-        CellStyle fillingTableCellStyle = ExcelUtil.createCellStyle(workbook, IndexedColors.LEMON_CHIFFON.getIndex());
+        final CellStyle borderCellStyle = ExcelUtil.createCellStyle(workbook, IndexedColors.GOLD.getIndex());
+        final CellStyle fillingTableCellStyle = ExcelUtil.createCellStyle(workbook, IndexedColors.LEMON_CHIFFON.getIndex());
 
         List<Statistics> statistics = tournament.getTeamList().stream()
-                .map(team -> team.getStatistics())
+                .map(Team::getStatistics)
                 .sorted(Comparator.comparingInt(Statistics::getPoints).reversed())
-                .collect(Collectors.toList());
+                .toList();
 
         int rowStart = 0;
         int colStart = 0;
+        setColumnsWidth(sheet);
         createColumnHeaders(rowStart, colStart, borderCellStyle);
         rowStart++;
 
-        Font greenFont = workbook.createFont();
-        greenFont.setColor(IndexedColors.GREEN.getIndex());
-        Font redFont = workbook.createFont();
-        redFont.setColor(IndexedColors.RED.getIndex());
-        Font blueFont = workbook.createFont();
-        blueFont.setColor(IndexedColors.BLUE.getIndex());
-
         for (int i = 0; i < statistics.size(); i++) {
-            Statistics stats = statistics.get(i);
-            Row row = sheet.createRow(rowStart);
-
-            Cell cell = row.createCell(colStart);
-            cell.setCellStyle(fillingTableCellStyle);
             int place = i + 1;
-            cell.setCellValue(place);
-            colStart++;
-
-            cell = row.createCell(colStart);
-            cell.setCellStyle(fillingTableCellStyle);
-            cell.setCellValue(stats.getTeam().getName());
-            colStart++;
-
-            cell = row.createCell(colStart);
-            cell.setCellStyle(fillingTableCellStyle);
-            cell.setCellValue(statisticService.getGamesCount(stats));
-            colStart++;
-
-            cell = row.createCell(colStart);
-            cell.setCellStyle(fillingTableCellStyle);
-            cell.setCellValue(stats.getCountWins());
-            colStart++;
-
-            cell = row.createCell(colStart);
-            cell.setCellStyle(fillingTableCellStyle);
-            cell.setCellValue(stats.getCountDraws());
-            colStart++;
-
-            cell = row.createCell(colStart);
-            cell.setCellStyle(fillingTableCellStyle);
-            cell.setCellValue(stats.getCountLoses());
-            colStart++;
-
-            cell = row.createCell(colStart);
-            cell.setCellStyle(fillingTableCellStyle);
-            cell.setCellValue(stats.getPoints());
-            colStart++;
-
-            cell = row.createCell(colStart);
-            cell.setCellStyle(fillingTableCellStyle);
-            String lastResults = statisticService.getRecentMatchResultsString(stats);
-            List<String> firstLetterResults = List.of(lastResults.split(" "));
-            XSSFRichTextString richText = new XSSFRichTextString("");
-
-            Font font;
-            for (String letter : firstLetterResults) {
-                font = switch (letter) {
-                    case "W" -> greenFont;
-                    case "L" -> redFont;
-                    case "D" -> blueFont;
-                    default -> throw new IllegalArgumentException("There are other letters in String than W,L,D");
-                };
-                richText.append(letter, (XSSFFont) font);
-                richText.append(" ");
-            }
-            cell.setCellValue(richText);
-
+            fillRow(rowStart, statistics.get(i), fillingTableCellStyle, place);
             rowStart++;
-            colStart = 0;
         }
-        footballStatisticWriterService.writeStatistic(workbook, sheet,
-                STATISTICS_ROW_START, STATISTICS_COLUMN_START, tournament);
+        footballStatisticWriterService.writeStatistic(workbook, sheet, STATISTICS_ROW_START, STATISTICS_COLUMN_START,
+                tournament);
         return ExcelUtil.createExcelFile(filePath, workbook);
+    }
+
+    private void fillRow(int rowNumber, Statistics stats, CellStyle cellStyle, int place) {
+        Row row = sheet.createRow(rowNumber);
+        AtomicInteger col = new AtomicInteger(0);
+
+        List<Object> values = List.of(place, stats.getTeam().getName(), statisticService.getGamesCount(stats),
+                stats.getCountWins(), stats.getCountDraws(), stats.getCountLoses(), stats.getPoints(),
+                getRichTextStringInColors(stats));
+        values.forEach(value -> ExcelUtil.createCell(row, col.getAndIncrement(), cellStyle, value));
+    }
+
+    private XSSFRichTextString getRichTextStringInColors(Statistics stats) {
+        String lastResults = statisticService.getRecentMatchResultsString(stats);
+        List<String> firstLetterResults = List.of(lastResults.split(" "));
+        XSSFRichTextString richText = new XSSFRichTextString("");
+
+        Font font;
+        for (String letter : firstLetterResults) {
+            font = switch (letter) {
+                case "W" -> getFontColor("GREEN");
+                case "L" -> getFontColor("RED");
+                case "D" -> getFontColor("BLUE");
+                default -> throw new IllegalArgumentException("There are other letters in String than W,L,D");
+            };
+            richText.append(letter, (XSSFFont) font);
+            richText.append(" ");
+        }
+        return richText;
+    }
+
+    private Font getFontColor(String colorName) {
+        Font font = workbook.createFont();
+        font.setColor(IndexedColors.valueOf(colorName).getIndex());
+        return font;
     }
 
     private void createColumnHeaders(int rowStart, int colStart, CellStyle cellStyle) {
         Row row = sheet.createRow(rowStart);
-
-        Cell cell = row.createCell(colStart);
-        cell.setCellStyle(cellStyle);
-        sheet.setColumnWidth(colStart, COLUMN_WITH_NUMBER_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
-
-        colStart++;
-
-        cell = row.createCell(colStart);
-        cell.setCellValue("Team");
-        cell.setCellStyle(cellStyle);
-        sheet.setColumnWidth(colStart, TEAM_COLUMN_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
-
-        colStart++;
-
-        cell = row.createCell(colStart);
-        cell.setCellValue("MP");
-        cell.setCellStyle(cellStyle);
-        sheet.setColumnWidth(colStart, COLUMN_WITH_NUMBER_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
-
-        colStart++;
-
-        cell = row.createCell(colStart);
-        cell.setCellValue("W");
-        cell.setCellStyle(cellStyle);
-        sheet.setColumnWidth(colStart, COLUMN_WITH_NUMBER_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
-
-        colStart++;
-
-        cell = row.createCell(colStart);
-        cell.setCellValue("D");
-        cell.setCellStyle(cellStyle);
-        sheet.setColumnWidth(colStart, COLUMN_WITH_NUMBER_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
-
-        colStart++;
-
-        cell = row.createCell(colStart);
-        cell.setCellValue("L");
-        cell.setCellStyle(cellStyle);
-        sheet.setColumnWidth(colStart, COLUMN_WITH_NUMBER_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
-
-        colStart++;
-
-        cell = row.createCell(colStart);
-        cell.setCellValue("P");
-        cell.setCellStyle(cellStyle);
-        sheet.setColumnWidth(colStart, COLUMN_WITH_NUMBER_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
-
-        colStart++;
-
-        cell = row.createCell(colStart);
-        cell.setCellValue("Last 5");
-        cell.setCellStyle(cellStyle);
-        sheet.setColumnWidth(colStart, LAST_5_COLUMN_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
+        AtomicInteger col = new AtomicInteger(colStart);
+        List<String> headers = List.of("", "Team", "MP", "W", "D", "L", "P", "Last 5");
+        headers.forEach(s -> ExcelUtil.createCell(row, col.getAndIncrement(), cellStyle, s));
     }
 
-    private CellStyle createCellStyle(Workbook workbook, IndexedColors color) {
-        CellStyle style = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setColor(color.getIndex());
-        style.setFont(font);
-        return style;
+    private void setColumnsWidth(Sheet sheet) {
+        final int columnCount = 8;
+        for (int i = 0; i < columnCount; i++) {
+            int currentWidth = COLUMN_WITH_NUMBER_EXCEL_WIDTH;
+            if (i == 1) {
+                currentWidth = TEAM_COLUMN_EXCEL_WIDTH;
+            } else if (i == 7) {
+                currentWidth = LAST_5_COLUMN_EXCEL_WIDTH;
+            }
+            sheet.setColumnWidth(i, currentWidth * ExcelUtil.COLUMN_WIDTH_UNIT);
+        }
     }
 }

@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,6 +55,7 @@ class FootballStatisticWriterService {
                                       FootballStatisticType type, CellStyle borderCellStyle, CellStyle fillingTableCellStyle) {
 
 
+        setColumnsWidth(sheet, colStart);
         crateColumnsHeaders(sheet, rowStart, colStart, type, borderCellStyle);
         rowStart++;
 
@@ -68,22 +70,12 @@ class FootballStatisticWriterService {
             );
             Row row = sheet.getRow(rowStart);
 
-            Cell cell = row.createCell(colStart);
-            cell.setCellValue(place++);
-            cell.setCellStyle(fillingTableCellStyle);
+            List<String> stringsToWrittenForPlayer = List.of(Integer.toString(place++), player.getFirstName() + " " +
+                    player.getLastName(), player.getTeam().getName(), topTen.get(playerId).toString());
 
-            cell = row.createCell(colStart + 1);
-            cell.setCellValue(player.getFirstName() + " " + player.getLastName());
-            cell.setCellStyle(fillingTableCellStyle);
-
-            cell = row.createCell(colStart + 2);
-            cell.setCellValue(player.getTeam().getName());
-            cell.setCellStyle(fillingTableCellStyle);
-
-            cell = row.createCell(colStart + 3);
-            cell.setCellValue(topTen.get(playerId));
-            cell.setCellStyle(fillingTableCellStyle);
-
+            AtomicInteger col = new AtomicInteger(colStart);
+            stringsToWrittenForPlayer.forEach(string ->
+                    ExcelUtil.createCell(row, col.getAndIncrement(), fillingTableCellStyle, string));
             rowStart++;
         }
     }
@@ -113,30 +105,15 @@ class FootballStatisticWriterService {
 
     private void crateColumnsHeaders(Sheet sheet, int rowStart, int colStart, FootballStatisticType type, CellStyle borderCellStyle) {
         Row row = sheet.getRow(rowStart);
+        AtomicInteger col = new AtomicInteger(colStart);
+        List<String> headers = List.of("", "Player", "Team", getStatisticName(type));
+        headers.forEach(s -> ExcelUtil.createCell(row, col.getAndIncrement(), borderCellStyle, s));
+    }
 
-        Cell cell = row.createCell(colStart);
-        cell.setCellStyle(borderCellStyle);
-        sheet.setColumnWidth(colStart, PLACE_COLUMN_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
-
-        colStart++;
-
-        cell = row.createCell(colStart);
-        cell.setCellValue("Player");
-        cell.setCellStyle(borderCellStyle);
-        sheet.setColumnWidth(colStart, PLAYER_COLUMN_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
-
-        colStart++;
-
-        cell = row.createCell(colStart);
-        cell.setCellValue("Team");
-        cell.setCellStyle(borderCellStyle);
-        sheet.setColumnWidth(colStart, TEAM_COLUMN_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
-
-        colStart++;
-
-        cell = row.createCell(colStart);
-        cell.setCellValue(getStatisticName(type));
-        cell.setCellStyle(borderCellStyle);
+    private void setColumnsWidth(Sheet sheet, int colStart) {
+        sheet.setColumnWidth(colStart++, PLACE_COLUMN_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
+        sheet.setColumnWidth(colStart++, PLAYER_COLUMN_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
+        sheet.setColumnWidth(colStart++, TEAM_COLUMN_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
         sheet.setColumnWidth(colStart, STATISTIC_COLUMN_EXCEL_WIDTH * ExcelUtil.COLUMN_WIDTH_UNIT);
     }
 
