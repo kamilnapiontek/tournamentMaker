@@ -143,10 +143,10 @@ public class ResultService {
         };
     }
 
-    public void updateRecentResult(MatchResult result, List<MatchResult> recentResult) {
-        recentResult.add(0, result);
-        if (recentResult.size() > Constans.COLLECTED_MATCH_RESULTS_NUMBER) {
-            recentResult.remove(Constans.COLLECTED_MATCH_RESULTS_NUMBER);
+    public void updateRecentResult(MatchResult result, List<MatchResult> recentResults) {
+        recentResults.add(0, result);
+        if (recentResults.size() > Constans.COLLECTED_MATCH_RESULTS_NUMBER) {
+            recentResults.remove(Constans.COLLECTED_MATCH_RESULTS_NUMBER);
         }
     }
 
@@ -163,14 +163,18 @@ public class ResultService {
             case WIN -> {
                 hostStatistics.setCountWins(hostStatistics.getCountWins() + 1);
                 guestStatistics.setCountLoses(guestStatistics.getCountLoses() + 1);
+                hostStatistics.setPoints(hostStatistics.getPoints() + 3);
             }
             case LOSE -> {
                 guestStatistics.setCountWins(guestStatistics.getCountWins() + 1);
                 hostStatistics.setCountLoses(hostStatistics.getCountLoses() + 1);
+                guestStatistics.setPoints(guestStatistics.getPoints() + 3);
             }
             case DRAW -> {
                 hostStatistics.setCountDraws(hostStatistics.getCountDraws() + 1);
                 guestStatistics.setCountDraws(guestStatistics.getCountDraws() + 1);
+                hostStatistics.setPoints(hostStatistics.getPoints() + 1);
+                guestStatistics.setPoints(guestStatistics.getPoints() + 1);
             }
         }
     }
@@ -181,3 +185,4 @@ public class ResultService {
         );
     }
 }
+

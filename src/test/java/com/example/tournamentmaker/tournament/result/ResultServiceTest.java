@@ -1,6 +1,8 @@
 package com.example.tournamentmaker.tournament.result;
 
 import com.example.tournamentmaker.statistics.FootballStatistics;
+import com.example.tournamentmaker.statistics.MatchResult;
+import com.example.tournamentmaker.statistics.Statistics;
 import com.example.tournamentmaker.team.Team;
 import com.example.tournamentmaker.team.player.FootballPlayer;
 import com.example.tournamentmaker.team.player.PlayerRepository;
@@ -8,11 +10,15 @@ import com.example.tournamentmaker.util.Util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -82,8 +88,95 @@ class ResultServiceTest {
         List<Integer> jerseyNumbersList = List.of(5);
         Team team = Util.createTeam("Team A");
         //when
-        Assertions.assertThrows(NoSuchElementException.class, () -> {
-            resultService.updateSpecificStatisticInTeam(jerseyNumbersList, team, new HashMap<>());
-        });
+        Assertions.assertThrows(NoSuchElementException.class, () ->
+                resultService.updateSpecificStatisticInTeam(jerseyNumbersList, team, new HashMap<>())
+        );
+    }
+
+    @Test
+    void shouldGetOpposingTeamResult() {
+        // given
+        MatchResult win = MatchResult.WIN;
+        MatchResult draw = MatchResult.DRAW;
+        MatchResult lose = MatchResult.LOSE;
+        // when
+        MatchResult whenWin = resultService.getOpposingTeamResult(win);
+        MatchResult whenDraw = resultService.getOpposingTeamResult(draw);
+        MatchResult whenLose = resultService.getOpposingTeamResult(lose);
+        // then
+        Assertions.assertAll(
+                () -> assertEquals(MatchResult.LOSE, whenWin),
+                () -> assertEquals(MatchResult.DRAW, whenDraw),
+                () -> assertEquals(MatchResult.WIN, whenLose)
+        );
+    }
+
+    @Test
+    void shouldUpdateRecentResult() {
+        // given
+        MatchResult lastResult = MatchResult.DRAW;
+        List<MatchResult> recentResults = new ArrayList<>(List.of(
+                MatchResult.WIN, MatchResult.LOSE, MatchResult.LOSE, MatchResult.WIN, MatchResult.LOSE));
+        // when
+        resultService.updateRecentResult(lastResult, recentResults);
+        // then
+        List<MatchResult> updatedListExpected = List.of(
+                MatchResult.DRAW, MatchResult.WIN, MatchResult.LOSE, MatchResult.LOSE, MatchResult.WIN);
+        Assertions.assertArrayEquals(updatedListExpected.toArray(), recentResults.toArray());
+    }
+
+    @ParameterizedTest
+    @MethodSource("resultsData")
+    void shouldGetHostResult(int hostPoints, int guestPoints, MatchResult expectedResult) {
+        // when
+        MatchResult hostResult = resultService.getHostResult(hostPoints, guestPoints);
+        // then
+        Assertions.assertEquals(expectedResult, hostResult);
+    }
+
+    private static Stream<Arguments> resultsData() {
+        return Stream.of(
+                Arguments.of(3, 2, MatchResult.WIN),
+                Arguments.of(5, 5, MatchResult.DRAW),
+                Arguments.of(0, 4, MatchResult.LOSE)
+        );
+    }
+
+    @Test
+    void shouldAddResultOfTheMatchToStatisticsWhenHostWin() {
+        // given
+        MatchResult hostResult = MatchResult.WIN;
+        Statistics hostStatistics = createStatistics(2, 6, 4, 10);
+        Statistics guestStatistics = createStatistics(0, 0, 2, 2);
+        // when
+        resultService.addResultOfTheMatchToStatistics(hostResult, hostStatistics, guestStatistics);
+        // then
+        Assertions.assertAll(
+                () -> assertEquals(3, hostStatistics.getCountWins()),
+                () -> assertEquals(13, hostStatistics.getPoints()),
+                () -> assertEquals(1, guestStatistics.getCountLoses()),
+                () -> assertEquals(2, guestStatistics.getPoints())
+        );
+    }
+
+    @Test
+    void shouldAddResultOfTheMatchToStatisticsWhenHostDraw() {
+        // given
+        MatchResult hostResult = MatchResult.DRAW;
+        Statistics hostStatistics = createStatistics(2, 6, 4, 10);
+        Statistics guestStatistics = createStatistics(0, 0, 2, 2);
+        // when
+        resultService.addResultOfTheMatchToStatistics(hostResult, hostStatistics, guestStatistics);
+        // then
+        Assertions.assertAll(
+                () -> assertEquals(5, hostStatistics.getCountDraws()),
+                () -> assertEquals(11, hostStatistics.getPoints()),
+                () -> assertEquals(3, guestStatistics.getCountDraws()),
+                () -> assertEquals(3, guestStatistics.getPoints())
+        );
+    }
+
+    private Statistics createStatistics(int countWins, int countLoses, int countDraws, int points) {
+        return new Statistics(null, countWins, countLoses, countDraws, points);
     }
 }

@@ -2,6 +2,7 @@ package com.example.tournamentmaker.statistics;
 
 import com.example.tournamentmaker.team.Team;
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +25,7 @@ public class Statistics {
 
     @OneToOne(mappedBy = "statistics")
     private Team team;
+    private Integer points;
     private Integer countWins;
     private Integer countLoses;
     private Integer countDraws;
@@ -31,10 +33,12 @@ public class Statistics {
     @Enumerated(EnumType.STRING)
     private List<MatchResult> recentMatchResults = new ArrayList<>();
 
-    Statistics(Team team, Integer countWins, Integer countLoses, Integer countDraws) {
+    public Statistics(Team team, Integer countWins, Integer countLoses, Integer countDraws, Integer points) {
         this.team = team;
         this.countWins = countWins;
         this.countLoses = countLoses;
         this.countDraws = countDraws;
+        this.points = points;
     }
 }
+
