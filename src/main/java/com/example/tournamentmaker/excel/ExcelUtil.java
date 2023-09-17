@@ -51,8 +51,8 @@ public class ExcelUtil {
 
     public static void createCell(Row row, int col, CellStyle cellStyle, Object value) {
         Cell cell = row.createCell(col);
-        cell.setCellValue(value.toString());
         cell.setCellStyle(cellStyle);
+
         if (value instanceof Integer integer) cell.setCellValue(integer);
         if (value instanceof XSSFRichTextString richTextString) cell.setCellValue(richTextString);
         if (value instanceof String string) {
