@@ -39,8 +39,8 @@ public class FootballCupExcelService implements ExcelStrategy {
 
     @Override
     public boolean writeTournamentInformation(Tournament tournament) {
-        CellStyle teamCellStyle = ExcelUtil.createCellStyle(workbook, IndexedColors.AQUA.getIndex());
-        CellStyle connectingCellStyle = ExcelUtil.createCellStyle(workbook, IndexedColors.DARK_BLUE.getIndex());
+        CellStyle teamCellStyle = ExcelUtil.createCellStyle(workbook, IndexedColors.LEMON_CHIFFON.getIndex());
+        CellStyle connectingCellStyle = ExcelUtil.createCellStyle(workbook, IndexedColors.GOLD.getIndex());
 
         List<Round> rounds = tournament.getRounds();
         int firstRoundGamesAmount = rounds.get(0).getGames().size();
@@ -60,8 +60,9 @@ public class FootballCupExcelService implements ExcelStrategy {
 
     private void addCupPicture(int col, int row) {
         try (InputStream inputStream = FootballCupExcelService.class.getClassLoader().
-                getResourceAsStream("cup.jpg")) {
+                getResourceAsStream(cupPath)) {
 
+            assert inputStream != null;
             byte[] bytes = IOUtils.toByteArray(inputStream);
             int pictureIdx = workbook.addPicture(bytes, Workbook.PICTURE_TYPE_JPEG);
 
@@ -78,43 +79,48 @@ public class FootballCupExcelService implements ExcelStrategy {
     }
 
     private void createTeamCells(List<Round> rounds, CellStyle style) {
-        int rowCount = 0;
-        int columCount = 0;
+        final int skippingColumnsBetweenRounds = 2;
+        int rowNumber = 0;
+        int columNumber = 0;
         int cellsToSkipOffTheTop = 0;
-        int iterator = 0;
         int cellsToJumpBetweenTeams;
+        int iterator = 0;
 
         for (Round round : rounds) {
             List<Game> games = round.getGames();
             games.sort(Comparator.comparingLong(Game::getId));
 
+//             In each subsequent round, the gap between the targets should be doubled
+//             starting with 2 jumps, then 4, 8, and so on
             cellsToJumpBetweenTeams = (int) Math.pow(2, iterator + 1);
 
             for (Game game : games) {
-                Row row = sheetLadder.getRow(rowCount);
-                Cell cell = row.createCell(columCount);
-                if (game.getHostId() != null) {
-                    cell.setCellValue(findTeamNameById(game.getHostId()));
-                }
-                cell.setCellStyle(style);
+                fillTeamCell(style, rowNumber, columNumber, game.getHostId());
+                rowNumber += cellsToJumpBetweenTeams;
 
-                rowCount += cellsToJumpBetweenTeams;
-                row = sheetLadder.getRow(rowCount);
-                cell = row.createCell(columCount);
-                if (game.getGuestId() != null) {
-                    cell.setCellValue(findTeamNameById(game.getGuestId()));
-                }
-                cell.setCellStyle(style);
-
-                rowCount += cellsToJumpBetweenTeams;
+                fillTeamCell(style, rowNumber, columNumber, game.getGuestId());
+                rowNumber += cellsToJumpBetweenTeams;
             }
-            columCount += 2;
+            columNumber += skippingColumnsBetweenRounds;
 
+//            Skipping squares at the top is necessary because the square with the winning team will always
+//            be between two competing teams. In the first round, you don't need to skip any squares
+//            in the second round, you should skip one square, then three in the next round, then seven, and so on
             cellsToSkipOffTheTop += Math.pow(2, iterator);
+            rowNumber = cellsToSkipOffTheTop;
+
             iterator++;
-            rowCount = cellsToSkipOffTheTop;
         }
-        writeCellWinner(rounds, style, rowCount, columCount);
+        writeCellWinner(rounds, style, rowNumber, columNumber);
+    }
+
+    private void fillTeamCell(CellStyle style, int rowNumber, int columNumber, Long teamId) {
+        Row row = sheetLadder.getRow(rowNumber);
+        Cell cell = row.createCell(columNumber);
+        if (teamId != null) {
+            cell.setCellValue(findTeamNameById(teamId));
+        }
+        cell.setCellStyle(style);
     }
 
     private void connectTeamsWithColoredCells(int howManyRounds, CellStyle style, int numerRowsToCreate) {

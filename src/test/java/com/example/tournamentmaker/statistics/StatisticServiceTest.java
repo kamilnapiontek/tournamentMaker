@@ -24,6 +24,6 @@ class StatisticServiceTest {
         // when
         String resultsString = statisticService.getRecentMatchResultsString(statistics);
         // then
-        Assertions.assertEquals("W W L W L ", resultsString);
+        Assertions.assertEquals("W W L W L", resultsString);
     }
 }

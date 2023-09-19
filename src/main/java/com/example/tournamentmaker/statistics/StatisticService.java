@@ -18,7 +18,7 @@ public class StatisticService {
             resultsString.append(getFirstLetter(result));
             resultsString.append(" ");
         });
-        return resultsString.toString();
+        return resultsString.toString().trim();
     }
 
     private String getFirstLetter(MatchResult result) {
