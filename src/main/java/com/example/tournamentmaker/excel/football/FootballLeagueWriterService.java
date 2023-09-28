@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -20,7 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 @RequiredArgsConstructor
 public class FootballLeagueWriterService implements ExcelStrategy {
-    private String filePath = "D:\\tournamentMaker.xlsx";
+    @Value("{application.excel.cup.path}")
+    private String filePath;
     private static final String SHEET_NAME = "League";
     private final FootballStatisticWriterService footballStatisticWriterService;
     private final Workbook workbook = new XSSFWorkbook();

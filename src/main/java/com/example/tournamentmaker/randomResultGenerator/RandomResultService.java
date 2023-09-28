@@ -161,7 +161,7 @@ class RandomResultService {
 
     private List<Integer> drawLotUniqueJerseyNumbers(int playersCount, Team team) {
         return team.getPlayers().stream()
-                .map(player -> (FootballPlayer) player)
+                .map(FootballPlayer.class::cast)
                 .limit(playersCount)
                 .map(FootballPlayer::getJerseyNumber)
                 .collect(Collectors.toList());
@@ -173,7 +173,7 @@ class RandomResultService {
         for (int i = 0; i < points; i++) {
             FootballPosition position = RandomUtil.randomizePositionOfGoalScorer();
             int jerseyNumber = team.getPlayers().stream()
-                    .map(player -> (FootballPlayer) player)
+                    .map(FootballPlayer.class::cast)
                     .filter(footballPlayer -> footballPlayer.getFootballPosition().equals(position))
                     .findAny()
                     .orElseThrow(NoSuchElementException::new)

@@ -23,8 +23,6 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-// RZUĆ OKIEM TUTAJ :)
-
 @ExtendWith(MockitoExtension.class)
 class ResultServiceTest {
     @InjectMocks

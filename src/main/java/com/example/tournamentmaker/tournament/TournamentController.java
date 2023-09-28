@@ -20,7 +20,6 @@ class TournamentController {
     void createTournament(@RequestBody TournamentRequest tournamentRequest) {
         tournamentService.createTournament(tournamentRequest);
     }
-//    @PreAuthorize("hasAnyRole('ADMIN','DB-ADMIN')")
     @PostMapping("/finishRegistration")
     @PreAuthorize("hasAuthority('admin:update')")
     boolean finishRegistration(@RequestBody String tournamentName) {

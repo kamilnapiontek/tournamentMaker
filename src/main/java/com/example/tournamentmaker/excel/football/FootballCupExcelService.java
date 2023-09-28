@@ -25,7 +25,8 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class FootballCupExcelService implements ExcelStrategy {
-    private String filePath = "D:\\tournamentMaker.xlsx";
+    @Value("{application.excel.cup.path}")
+    private String filePath;
     @Value("${application.excel.cup.path}")
     private String cupPath;
     private static final String SHEET_LADDER_NAME = "Tournament ladder";
