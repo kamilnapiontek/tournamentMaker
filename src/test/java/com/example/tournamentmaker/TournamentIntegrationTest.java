@@ -1,6 +1,9 @@
 package com.example.tournamentmaker;
 
 import com.example.tournamentmaker.tournament.TournamentRepository;
+import com.example.tournamentmaker.tournament.TournamentRequest;
+import com.example.tournamentmaker.tournament.enums.Sport;
+import com.example.tournamentmaker.tournament.enums.TournamentType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +33,12 @@ class TournamentIntegrationTest {
     @WithMockUser(username = "user", authorities = {"admin:update"})
     void shouldCreateTournament() throws Exception {
         // given
-        String request = objectMapper.writeValueAsString("Tournament");
+        TournamentRequest request = new TournamentRequest("Tournament", Sport.FOOTBALL, TournamentType.LEAGUE);
+        String mappedRequest = objectMapper.writeValueAsString(request);
         // when
         MvcResult result = mockMvc.perform(post("/api/tournament/create")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+                        .content(mappedRequest))
                 .andExpect(status().isOk())
                 .andReturn();
         // then

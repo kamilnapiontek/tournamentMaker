@@ -6,5 +6,5 @@ import jakarta.persistence.Entity;
 @Entity
 @DiscriminatorValue("BASKETBALL")
 public class BasketballStatistics extends Statistics {
-    // implementacja pól i metod specyficznych dla koszykówki
+    // the project has been implemented in a way that allows for easy expansion with additional sports
 }

@@ -125,12 +125,22 @@
 				<version>0.8.10</version>
 				<configuration>
 					<excludes>
+						<exclude>**/TournamentMakerApplication.class</exclude>
 						<exclude>**/security/**</exclude>
 						<exclude>**/constans/**</exclude>
-						<exclude>**/admin/SwitchRequest.java</exclude>
+						<exclude>**/admin/SwitchRequest.class</exclude>
+						<exclude>**/tournament/Tournament.class</exclude>
 						<exclude>**/tournament/game/**</exclude>
-						<exclude>**/tournament/round/Round.java</exclude>
+						<exclude>**/tournament/round/Round.class</exclude>
 						<exclude>**/model/**</exclude>
+						<exclude>**/statistics/BasketballStatistics.class</exclude>
+						<exclude>**/statistics/FootballStatistics.class</exclude>
+						<exclude>**/team/player/**</exclude>
+						<exclude>**/user/**</exclude>
+						<exclude>**/result/ResultRequest.class</exclude>
+						<exclude>**/result/FootballResultRequest.class</exclude>
+						<exclude>**/result/FootballResultStatistics.class</exclude>
+						<exclude>**/excel/football/FootballStatisticType.class</exclude>
 					</excludes>
 				</configuration>
 				<executions>

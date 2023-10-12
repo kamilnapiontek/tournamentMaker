@@ -1,5 +1,6 @@
 package com.example.tournamentmaker.randomResultGenerator;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

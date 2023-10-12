@@ -1,12 +1,18 @@
 package com.example.tournamentmaker.tournament.result;
 
 import com.example.tournamentmaker.statistics.FootballStatistics;
+import com.example.tournamentmaker.statistics.FootballStatisticsRepository;
 import com.example.tournamentmaker.statistics.MatchResult;
 import com.example.tournamentmaker.statistics.Statistics;
 import com.example.tournamentmaker.team.Team;
+import com.example.tournamentmaker.team.TeamRepository;
 import com.example.tournamentmaker.team.player.FootballPlayer;
 import com.example.tournamentmaker.team.player.PlayerRepository;
-import com.example.tournamentmaker.util.Util;
+import com.example.tournamentmaker.tournament.Tournament;
+import com.example.tournamentmaker.tournament.TournamentRepository;
+import com.example.tournamentmaker.tournament.game.Game;
+import com.example.tournamentmaker.tournament.game.GameRepository;
+import com.example.tournamentmaker.tournament.round.Round;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,8 +26,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.example.tournamentmaker.util.Util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ResultServiceTest {
@@ -29,14 +37,85 @@ class ResultServiceTest {
     private ResultService resultService;
     @Mock
     private PlayerRepository playerRepository;
+    @Mock
+    private TournamentRepository tournamentRepository;
+    @Mock
+    private TeamRepository teamRepository;
+    @Mock
+    private GameRepository gameRepository;
+    @Mock
+    private FootballStatisticsRepository footballStatisticsRepository;
+
+    @Test
+    void shouldLaunchFootballResult() {
+        // given
+        Tournament tournament = createTournament();
+        String tournamentName = tournament.getName();
+        String hostName = "Host";
+        String guestName = "Guest";
+        int turnNumber = 1;
+        int hostPoints = 0;
+        int guestPoints = 2;
+        Team hostTeam = createTeam(1L, hostName, tournament);
+        Team guestTeam = createTeam(2L, guestName, tournament);
+        Round round = new Round(turnNumber, tournament);
+        tournament.getRounds().add(round);
+        round.getGames().add(new Game(hostTeam.getId(), guestTeam.getId(), round));
+
+        FootballStatistics hostStatistics = new FootballStatistics(hostTeam);
+        FootballStatistics guestStatistics = new FootballStatistics(guestTeam);
+        FootballPlayer hostPlayer1 = createFootballPlayer(1L, "Jack", hostTeam, 1);
+        FootballPlayer hostPlayer2 = createFootballPlayer(2L, "Will", hostTeam, 7);
+        FootballPlayer guestPlayer1 = createFootballPlayer(3L, "Kevin", guestTeam, 1);
+        FootballPlayer guestPlayer2 = createFootballPlayer(4L, "Mike", guestTeam, 10);
+
+        final List<Integer> hostShirtNumbersWithGoal = new ArrayList<>();
+        final List<Integer> hostShirtNumbersWithYellowCard = List.of(hostPlayer2.getJerseyNumber());
+        final List<Integer> hostShirtNumbersWithRedCard = List.of(hostPlayer1.getJerseyNumber());
+        final List<Integer> hostShirtWithCleanSlate = new ArrayList<>();
+        final List<Integer> guestShirtNumbersWithGoal = List.of(guestPlayer1.getJerseyNumber(), guestPlayer2.getJerseyNumber());
+        final List<Integer> guestShirtNumbersWithYellowCard = new ArrayList<>();
+        final List<Integer> guestShirtNumbersWithRedCard = new ArrayList<>();
+        final List<Integer> guestShirtNumbersWithCleanSlate = List.of(guestPlayer1.getJerseyNumber());
+
+        FootballResultStatistics hostResult = createFootballResultStatistics(hostShirtNumbersWithGoal,
+                hostShirtNumbersWithYellowCard, hostShirtNumbersWithRedCard, hostShirtWithCleanSlate);
+        FootballResultStatistics guestResult = createFootballResultStatistics(guestShirtNumbersWithGoal,
+                guestShirtNumbersWithYellowCard, guestShirtNumbersWithRedCard, guestShirtNumbersWithCleanSlate);
+        FootballResultRequest request = new FootballResultRequest(tournamentName, turnNumber, hostName,
+                guestName, hostPoints, guestPoints, hostResult, guestResult);
+        // when
+        when(tournamentRepository.findByName(tournamentName)).thenReturn(Optional.of(tournament));
+        when(teamRepository.findByNameAndTournamentName(hostName, tournamentName)).thenReturn(Optional.of(hostTeam));
+        when(teamRepository.findByNameAndTournamentName(guestName, tournamentName)).thenReturn(Optional.of(guestTeam));
+        when(footballStatisticsRepository.findByTeamId(hostTeam.getId())).thenReturn(Optional.of(hostStatistics));
+        when(footballStatisticsRepository.findByTeamId(guestTeam.getId())).thenReturn(Optional.of(guestStatistics));
+        when(playerRepository.findByJerseyNumberAndTeam(1, hostTeam)).thenReturn(Optional.of(hostPlayer1));
+        when(playerRepository.findByJerseyNumberAndTeam(7, hostTeam)).thenReturn(Optional.of(hostPlayer2));
+        when(playerRepository.findByJerseyNumberAndTeam(1, guestTeam)).thenReturn(Optional.of(guestPlayer1));
+        when(playerRepository.findByJerseyNumberAndTeam(10, guestTeam)).thenReturn(Optional.of(guestPlayer2));
+        resultService.launchFootballResult(request);
+        // then
+        verify(footballStatisticsRepository, times(2)).save(any(FootballStatistics.class));
+        verify(gameRepository, times(1)).save(any(Game.class));
+    }
+
+    private FootballResultStatistics createFootballResultStatistics(List<Integer> shirtNumbersWithGoal,
+                                                                    List<Integer> shirtNumbersWithYellowCard,
+                                                                    List<Integer> shirtNumbersWithRedCard,
+                                                                    List<Integer> shirtWithCleanSlate) {
+        return new FootballResultStatistics(
+                shirtNumbersWithGoal, shirtNumbersWithYellowCard, shirtNumbersWithRedCard, shirtWithCleanSlate);
+    }
+
 
     @Test
     void shouldUpdateGoalsCount() {
         //given
         int hostPoints = 3;
         int guestPoints = 2;
-        FootballStatistics hostStatistics = new FootballStatistics(Util.createTeam("Team A"));
-        FootballStatistics guestStatistics = new FootballStatistics(Util.createTeam("Team B"));
+        FootballStatistics hostStatistics = new FootballStatistics(createTeam("Team A"));
+        FootballStatistics guestStatistics = new FootballStatistics(createTeam("Team B"));
         //when
         resultService.updateGoalsCount(hostPoints, guestPoints, hostStatistics, guestStatistics);
         //then
@@ -52,9 +131,9 @@ class ResultServiceTest {
     void shouldUpdateSpecificStatisticInTeam() {
         //given
         List<Integer> jerseyNumbersList = List.of(5, 5, 7);
-        Team team = Util.createTeam("Team A");
-        FootballPlayer player1 = Util.createFootballPlayer(1L, "Jack", team, 5);
-        FootballPlayer player2 = Util.createFootballPlayer(3L, "Will", team, 7);
+        Team team = createTeam("Team A");
+        FootballPlayer player1 = createFootballPlayer(1L, "Jack", team, 5);
+        FootballPlayer player2 = createFootballPlayer(3L, "Will", team, 7);
         Map<Long, Integer> specificStatistic = new HashMap<>();
         specificStatistic.put(1L, 1);
         specificStatistic.put(3L, 22);
@@ -71,8 +150,8 @@ class ResultServiceTest {
     void shouldUpdateSpecificStatisticInTeamWhenNoPlayersInSpecificStatisticMap() {
         //given
         List<Integer> jerseyNumbersList = List.of(5, 5, 5);
-        Team team = Util.createTeam("Team A");
-        FootballPlayer player = Util.createFootballPlayer(1L, "Jack", team, 5);
+        Team team = createTeam("Team A");
+        FootballPlayer player = createFootballPlayer(1L, "Jack", team, 5);
         Map<Long, Integer> specificStatistic = new HashMap<>();
         //when
         when(playerRepository.findByJerseyNumberAndTeam(5, team)).thenReturn(Optional.of(player));
@@ -86,7 +165,7 @@ class ResultServiceTest {
     void shouldContainExceptionWhenPlayerWithJerseyNumberNotFound() {
         //given
         List<Integer> jerseyNumbersList = List.of(5);
-        Team team = Util.createTeam("Team A");
+        Team team = createTeam("Team A");
         //when
         Assertions.assertThrows(NoSuchElementException.class, () ->
                 resultService.updateSpecificStatisticInTeam(jerseyNumbersList, team, new HashMap<>())

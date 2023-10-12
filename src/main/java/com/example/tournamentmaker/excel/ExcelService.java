@@ -21,9 +21,7 @@ class ExcelService {
 
     boolean writeTournamentInformationInExcel(String tournamentName) {
         Tournament tournament = tournamentRepository.findByName(tournamentName).orElseThrow(
-                () -> {
-                    throw new NoSuchElementException(Constans.NO_TOURNAMENT_FOUND);
-                });
+                () -> new NoSuchElementException(Constans.NO_TOURNAMENT_FOUND));
         Sport sport = tournament.getSport();
         TournamentType type = tournament.getTournamentType();
 

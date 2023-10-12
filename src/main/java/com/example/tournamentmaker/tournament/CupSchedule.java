@@ -14,7 +14,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CupSchedule implements ScheduleStrategy {
-    private final static int FIRST_ROUND = 1;
+    private static final int FIRST_ROUND = 1;
     private final TournamentRepository tournamentRepository;
     private final RoundRepository roundRepository;
 

@@ -37,7 +37,7 @@ public class Team {
             nullable = false,
             referencedColumnName = "id",
             foreignKey = @ForeignKey(
-                    name = "tournament_fk"
+                    name = "tournament_team_fk"
             )
     )
     private Tournament tournament;

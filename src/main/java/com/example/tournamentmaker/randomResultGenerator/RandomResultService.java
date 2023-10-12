@@ -26,6 +26,8 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.example.tournamentmaker.randomResultGenerator.RandomUtil.*;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,9 +35,9 @@ class RandomResultService {
     private final TournamentRepository tournamentRepository;
     private final GameRepository gameRepository;
     private final FootballStatisticsRepository footballStatisticsRepository;
+    private final TeamRepository teamRepository;
     private final ResultService resultService;
     private final CupRoundService cupRoundService;
-    private final TeamRepository teamRepository;
     private static final int MIN_YELLOW_CARDS_IN_MATCH = 0;
     private static final int MAX_YELLOW_CARDS_IN_MATCH = 3;
 
@@ -79,8 +81,8 @@ class RandomResultService {
     }
 
     private void drawLotFootballGameResult(Game game) {
-        int hostPoints = RandomUtil.getRandomGoalsNumber();
-        int guestPoints = RandomUtil.getRandomGoalsNumber();
+        int hostPoints = getRandomGoalsNumber();
+        int guestPoints = getRandomGoalsNumber();
 
         game.setHostPoints(hostPoints);
         game.setGuestPoints(guestPoints);
@@ -118,9 +120,9 @@ class RandomResultService {
 
     private void updateSpecificStatisticsForTeam(int points, int opponentPoints, FootballStatistics statistics, Team team) {
         List<Integer> jerseyNumbersGoalScorers = drawLotJerseyNumbersGoalScorers(points, team);
-        List<Integer> jerseyNumbersWithYellowCard = drawLotUniqueJerseyNumbers(RandomUtil.generateRandomNumber
+        List<Integer> jerseyNumbersWithYellowCard = drawLotUniqueJerseyNumbers(generateRandomNumber
                 (MIN_YELLOW_CARDS_IN_MATCH, MAX_YELLOW_CARDS_IN_MATCH), team);
-        List<Integer> jerseyNumbersWithRedCard = drawLotUniqueJerseyNumbers(RandomUtil.getRandomRedCardCount(), team);
+        List<Integer> jerseyNumbersWithRedCard = drawLotUniqueJerseyNumbers(getRandomRedCardCount(), team);
 
         updateStatisticsForTeam(statistics, team, jerseyNumbersGoalScorers, jerseyNumbersWithYellowCard,
                 jerseyNumbersWithRedCard);
@@ -164,14 +166,14 @@ class RandomResultService {
                 .map(FootballPlayer.class::cast)
                 .limit(playersCount)
                 .map(FootballPlayer::getJerseyNumber)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<Integer> drawLotJerseyNumbersGoalScorers(int points, Team team) {
         List<Integer> jerseyNumbersGoalScorers = new ArrayList<>();
 
         for (int i = 0; i < points; i++) {
-            FootballPosition position = RandomUtil.randomizePositionOfGoalScorer();
+            FootballPosition position = randomizePositionOfGoalScorer();
             int jerseyNumber = team.getPlayers().stream()
                     .map(FootballPlayer.class::cast)
                     .filter(footballPlayer -> footballPlayer.getFootballPosition().equals(position))
