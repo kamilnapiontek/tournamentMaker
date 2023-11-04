@@ -27,8 +27,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static com.example.tournamentmaker.constans.Constans.NO_TOURNAMENT_FOUND;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RandomResultServiceTest {
@@ -70,6 +72,7 @@ class RandomResultServiceTest {
         Integer examplePoints = tournament.getRounds().get(2).getGames().get(0).getHostPoints();
         boolean hasResultBeenDrawn = (examplePoints >= 0) && (examplePoints <= 9);
         Assertions.assertTrue(hasResultBeenDrawn);
+        verify(teamRepository, times(6)).findById(any());
     }
 
     private void createRoundWithOneGame(long hostId, long guestId, Tournament tournament) {
@@ -98,8 +101,9 @@ class RandomResultServiceTest {
         String name = "There is no such tournament";
         String roundsToDraw = "1-3";
         //when
-        Assertions.assertThrows(NoSuchElementException.class,
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class,
                 () -> randomResultService.drawLotRoundsResults(new RandomResultRequest(name, roundsToDraw)
                 ));
+        Assertions.assertEquals(NO_TOURNAMENT_FOUND, exception.getMessage());
     }
 }

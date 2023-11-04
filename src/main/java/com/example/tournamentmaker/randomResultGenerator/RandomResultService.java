@@ -26,6 +26,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.example.tournamentmaker.constans.Constans.NO_TOURNAMENT_FOUND;
 import static com.example.tournamentmaker.randomResultGenerator.RandomUtil.*;
 
 @Slf4j
@@ -44,7 +45,7 @@ class RandomResultService {
     public void drawLotRoundsResults(RandomResultRequest request) {
         Tournament tournament = tournamentRepository.findByName(request.getTournamentName())
                 .orElseThrow(() -> {
-                    throw new NoSuchElementException(Constans.NO_TOURNAMENT_FOUND);
+                    throw new NoSuchElementException(NO_TOURNAMENT_FOUND);
                 });
         String[] rounds = request.getRoundsToDraw().split("-");
         int firstRound = Integer.parseInt(rounds[0]);

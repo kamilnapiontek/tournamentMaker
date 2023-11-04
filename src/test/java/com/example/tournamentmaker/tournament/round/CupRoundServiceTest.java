@@ -4,19 +4,13 @@ import com.example.tournamentmaker.tournament.Tournament;
 import com.example.tournamentmaker.tournament.game.Game;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(MockitoExtension.class)
 class CupRoundServiceTest {
-
-    @InjectMocks
-    private CupRoundService service;
+    private final CupRoundService service = new CupRoundService();
 
     @Test
     void shouldCreateRoundScheduleWhenTeamsADGoToNext() {
@@ -41,7 +35,7 @@ class CupRoundServiceTest {
         games.add(new Game(teamA, teamB, currentRound));
         Game firstGame = currentRound.getGames().get(0);
         setPointsInGame(firstGame, pointsA, pointsB);
-        
+
         games.add(new Game(teamC, teamD, currentRound));
         Game secondGame = currentRound.getGames().get(1);
         setPointsInGame(secondGame, pointsC, pointsD);
