@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static com.example.tournamentmaker.excel.ExcelUtil.*;
+import static com.example.tournamentmaker.excel.football.FootballExcelUtil.createCellsNumberToColorInRow;
+import static com.example.tournamentmaker.excel.football.FootballExcelUtil.createCellsToSkipList;
 
 @Service
 @RequiredArgsConstructor
@@ -30,64 +32,58 @@ public class FootballResultsCupSheetCreator implements FootballResultsCreator {
     private static final int MAX_COLUMN_AMOUNT = 20;
     private static final int TEAM_COLUMN_EXCEL_WIDTH = 30;
     private static final int CONNECTING_COLUMN_EXCEL_WIDTH = 3;
+    private static final int ROWS_NEEDED_FOR_ONE_GAME = 4;
     private int pictureColumnPosition;
     private int pictureRowPosition;
+    private CellStyle teamCellStyle;
+    private CellStyle connectingCellStyle;
 
     @Override
     public Sheet fillSheet(Workbook workbook, Sheet sheet, Tournament tournament) {
-        CellStyle teamCellStyle = createCellStyle(workbook, IndexedColors.LEMON_CHIFFON.getIndex());
-        CellStyle connectingCellStyle = createCellStyle(workbook, IndexedColors.GOLD.getIndex());
+        teamCellStyle = createCellStyle(workbook, IndexedColors.LEMON_CHIFFON.getIndex());
+        connectingCellStyle = createCellStyle(workbook, IndexedColors.GOLD.getIndex());
 
         List<Round> rounds = tournament.getRounds();
         final int firstRoundGamesAmount = rounds.get(0).getGames().size();
-        final int ROWS_NEEDED_FOR_ONE_TEAM = 4;
-        final int numberRowsToCreate = firstRoundGamesAmount * ROWS_NEEDED_FOR_ONE_TEAM - 1;
+        final int numberRowsToCreate = firstRoundGamesAmount * ROWS_NEEDED_FOR_ONE_GAME - 1;
         createNeededRows(sheet, numberRowsToCreate);
         setColumnsWidth(sheet);
 
-        createTeamCells(sheet, rounds, teamCellStyle);
-        connectTeamCellsWithColoredCells(sheet, rounds.size(), connectingCellStyle, numberRowsToCreate);
+        createTeamCells(sheet, rounds);
+        connectTeamCellsWithColoredCells(sheet, rounds.size());
         addCupPicture(workbook, sheet, pictureColumnPosition, pictureRowPosition);
         return sheet;
     }
 
-    private void createTeamCells(Sheet sheet, List<Round> rounds, CellStyle style) {
+    private void createTeamCells(Sheet sheet, List<Round> rounds) {
         final int skippingColumnsBetweenRounds = 2;
         int rowNumber = 0;
         int columNumber = 0;
-        int cellsToSkipOffTheTop = 0;
-        int cellsToJumpBetweenTeams;
-        int numberRaisedToThePower = 0;
+        int cellsToJumpBetweenTeams = 1;
+        List<Integer> cellsToSkipOffTheTop = createCellsToSkipList(rounds.size());
+        int cellsToSkipIndex = 0;
 
         for (Round round : rounds) {
             List<Game> games = round.getGames();
             games.sort(Comparator.comparingLong(Game::getId));
 
-//             In each subsequent round, the gap between the targets should be doubled
-//             starting with 2 jumps, then 4, 8, and so on
-            cellsToJumpBetweenTeams = (int) Math.pow(2, numberRaisedToThePower + 1);
+            cellsToJumpBetweenTeams *= 2;
 
             for (Game game : games) {
-                fillTeamCell(sheet, style, rowNumber, columNumber, game.getHostId());
+                fillTeamCell(sheet, rowNumber, columNumber, game.getHostId());
                 rowNumber += cellsToJumpBetweenTeams;
 
-                fillTeamCell(sheet, style, rowNumber, columNumber, game.getGuestId());
+                fillTeamCell(sheet, rowNumber, columNumber, game.getGuestId());
                 rowNumber += cellsToJumpBetweenTeams;
             }
             columNumber += skippingColumnsBetweenRounds;
-
-//            Skipping squares at the top is necessary because the square with the winning team will always
-//            be between two competing teams. In the first round, you don't need to skip any squares
-//            in the second round, you should skip one square, then three in the next round, then seven, and so on
-            cellsToSkipOffTheTop += Math.pow(2, numberRaisedToThePower);
-            rowNumber = cellsToSkipOffTheTop;
-
-            numberRaisedToThePower++;
+            rowNumber = cellsToSkipOffTheTop.get(cellsToSkipIndex);
+            cellsToSkipIndex++;
         }
-        writeCellWinner(sheet, rounds, style, rowNumber, columNumber);
+        generateCellForTournamentWinner(sheet, rounds, rowNumber, columNumber);
     }
 
-    private void writeCellWinner(Sheet sheet, List<Round> rounds, CellStyle style, int rowCount, int columCount) {
+    private void generateCellForTournamentWinner(Sheet sheet, List<Round> rounds, int rowCount, int columCount) {
         Row row = sheet.getRow(rowCount);
         Cell cell = row.createCell(columCount);
         Round lastRound = rounds.get(rounds.size() - 1);
@@ -95,7 +91,7 @@ public class FootballResultsCupSheetCreator implements FootballResultsCreator {
             Game finalGame = lastRound.getGames().get(0);
             cell.setCellValue(findWinnerTeamName(finalGame));
         }
-        cell.setCellStyle(style);
+        cell.setCellStyle(teamCellStyle);
 
         pictureColumnPosition = columCount + 2;
         pictureRowPosition = rowCount - 2;
@@ -109,13 +105,13 @@ public class FootballResultsCupSheetCreator implements FootballResultsCreator {
         return team.getName();
     }
 
-    private void fillTeamCell(Sheet sheet, CellStyle style, int rowNumber, int columNumber, Long teamId) {
+    private void fillTeamCell(Sheet sheet, int rowNumber, int columNumber, Long teamId) {
         Row row = sheet.getRow(rowNumber);
         Cell cell = row.createCell(columNumber);
         if (teamId != null) {
             cell.setCellValue(findTeamNameById(teamId));
         }
-        cell.setCellStyle(style);
+        cell.setCellStyle(teamCellStyle);
     }
 
     private String findTeamNameById(long id) {
@@ -132,7 +128,7 @@ public class FootballResultsCupSheetCreator implements FootballResultsCreator {
             byte[] bytes = IOUtils.toByteArray(inputStream);
             int pictureIdx = workbook.addPicture(bytes, Workbook.PICTURE_TYPE_JPEG);
 
-            Drawing drawing = sheet.createDrawingPatriarch();
+            Drawing<?> drawing = sheet.createDrawingPatriarch();
             XSSFClientAnchor anchor = new XSSFClientAnchor();
             anchor.setCol1(col);
             anchor.setRow1(row);
@@ -155,41 +151,36 @@ public class FootballResultsCupSheetCreator implements FootballResultsCreator {
         }
     }
 
-    private void connectTeamCellsWithColoredCells(Sheet sheet, int howManyRounds, CellStyle style, int numerRowsToCreate) {
+    private void connectTeamCellsWithColoredCells(Sheet sheet, int howManyRounds) {
+        final int skippingColumnsBetweenRounds = 2;
+        List<Integer> cellsNumberToSkipOffTheTopAndBottom = createCellsToSkipList(howManyRounds);
+        List<Integer> gamesCountToColorInRow = createCellsNumberToColorInRow(howManyRounds);
+        int howManyPaintingsInRound = howManyRounds;
         int columCount = 1;
         int rowCount = 0;
-        int cellsToSkipOffTheTop = 0;
-
-        int coloredCounter;
-        int howManyToColorInRow;
-        int cellsToSkip;
-        boolean isBreakInPainting = true;
 
         for (int i = 0; i < howManyRounds; i++) {
-            coloredCounter = 0;
-            howManyToColorInRow = (int) Math.pow(2, i + 1) + 1;
-            cellsToSkip = 0;
-            for (int j = cellsToSkipOffTheTop; j < numerRowsToCreate - cellsToSkipOffTheTop; j++) {
-                if (coloredCounter < howManyToColorInRow && cellsToSkip == 0) {
-                    Row row = sheet.getRow(rowCount);
-                    Cell cell = row.createCell(columCount);
-                    cell.setCellStyle(style);
-                    coloredCounter++;
-                    isBreakInPainting = false;
-                } else {
-                    if (!isBreakInPainting) {
-                        isBreakInPainting = true;
-                        coloredCounter = 0;
-                        cellsToSkip = (int) (cellsToSkipOffTheTop + Math.pow(2, i));
-                    }
-                    cellsToSkip--;
-                }
-                rowCount++;
+            for (int j = 0; j < howManyPaintingsInRound; j++) {
+                rowCount = fillConnectCells(sheet, gamesCountToColorInRow, columCount, rowCount, i);
+                rowCount += cellsNumberToSkipOffTheTopAndBottom.get(i);
             }
-            columCount += 2;
-
-            cellsToSkipOffTheTop += Math.pow(2, i);
-            rowCount = cellsToSkipOffTheTop;
+            howManyPaintingsInRound = howManyPaintingsInRound / 2;
+            rowCount = cellsNumberToSkipOffTheTopAndBottom.get(i);
+            columCount += skippingColumnsBetweenRounds;
         }
+    }
+
+    private int fillConnectCells(Sheet sheet, List<Integer> gamesCountToColorInRow, int colCount, int rowCount, int gameIndex) {
+        for (int i = 0; i < gamesCountToColorInRow.get(gameIndex); i++) {
+            fillColoredCell(sheet, colCount, rowCount);
+            rowCount++;
+        }
+        return rowCount;
+    }
+
+    private void fillColoredCell(Sheet sheet, int columCount, int rowCount) {
+        Row row = sheet.getRow(rowCount);
+        Cell cell = row.createCell(columCount);
+        cell.setCellStyle(connectingCellStyle);
     }
 }
