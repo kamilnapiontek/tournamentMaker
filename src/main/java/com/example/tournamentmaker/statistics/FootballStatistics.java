@@ -28,22 +28,22 @@ public class FootballStatistics extends Statistics {
             joinColumns = @JoinColumn(name = "football_statistics_id"))
     @MapKeyColumn(name = "player_id")
     @Column(name = "yellow_cards")
-    private Map<Long, Integer> playersIdWithYellowCard;
+    private Map<Long, Integer> playersIdWithYellowCard = new HashMap<>();
     @ElementCollection
     @CollectionTable(name = "football_statistics_players_red_cards",
             joinColumns = @JoinColumn(name = "football_statistics_id"))
     @MapKeyColumn(name = "player_id")
     @Column(name = "red_cards")
-    private Map<Long, Integer> playersIdWithRedCard;
+    private Map<Long, Integer> playersIdWithRedCard = new HashMap<>();
     @ElementCollection
     @CollectionTable(name = "football_statistics_players_clean_sheets",
             joinColumns = @JoinColumn(name = "football_statistics_id"))
     @MapKeyColumn(name = "player_id")
     @Column(name = "clean_sheets")
-    private Map<Long, Integer> playersIdWithCleanSheets;
+    private Map<Long, Integer> playersIdWithCleanSheets = new HashMap<>();
 
     public FootballStatistics(Team team) {
-        super(team, 0, 0, 0,0);
+        super(team, 0, 0, 0, 0);
         this.goalsScored = 0;
         this.goalsConceded = 0;
     }

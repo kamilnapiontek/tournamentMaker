@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-class TournamentRequest {
+public class TournamentRequest {
     private final String name;
     private Sport sport;
     private TournamentType tournamentType;

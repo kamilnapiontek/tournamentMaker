@@ -9,10 +9,26 @@ import com.example.tournamentmaker.tournament.enums.TournamentType;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.stream.IntStream;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Util {
     public static Team createTeam(String name) {
         return new Team(name, createTournament());
+    }
+
+    public static Team createTeam(long id, String name, Tournament tournament) {
+        Team team = new Team(name, tournament);
+        team.setId(id);
+        return team;
+    }
+
+    public static void createTeams(Tournament tournament, int teamsNumber) {
+        List<Team> teamList = IntStream.range(1, teamsNumber + 1)
+                .mapToObj(i -> Util.createTeam(i, "Team", tournament))
+                .toList();
+        tournament.getTeamList().addAll(teamList);
     }
 
     public static Tournament createTournament() {

@@ -1,16 +1,18 @@
-package com.example.tournamentmaker.excel;
+package com.example.tournamentmaker.excel.football;
 
 import org.junit.gen5.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class ExcelUtilTest {
+import static com.example.tournamentmaker.excel.football.FootballExcelUtil.stringContainsOnlyNumbers;
+import static org.junit.jupiter.api.Assertions.*;
 
+class FootballExcelUtilTest {
     @Test
     void shouldReturnTrueWhenStringContainsOnlyNumbers() {
         // given
         String string = "123";
         // when
-        boolean stringContainsOnlyNumbers = ExcelUtil.stringContainsOnlyNumbers(string);
+        boolean stringContainsOnlyNumbers = stringContainsOnlyNumbers(string);
         // then
         Assertions.assertTrue(stringContainsOnlyNumbers);
     }
@@ -19,7 +21,7 @@ class ExcelUtilTest {
         // given
         String string = "123d";
         // when
-        boolean stringContainsOnlyNumbers = ExcelUtil.stringContainsOnlyNumbers(string);
+        boolean stringContainsOnlyNumbers = stringContainsOnlyNumbers(string);
         // then
         Assertions.assertFalse(stringContainsOnlyNumbers);
     }

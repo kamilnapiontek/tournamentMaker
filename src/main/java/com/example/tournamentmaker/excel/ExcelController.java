@@ -15,7 +15,7 @@ class ExcelController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('admin:update')")
-    boolean writeTournamentInformationInExcel(@RequestBody String tournamentName) {
-        return service.writeTournamentInformationInExcel(tournamentName);
+    void writeTournamentInformationInExcel(@RequestBody String tournamentName) {
+        service.writeTournamentInformationInExcel(tournamentName);
     }
 }
