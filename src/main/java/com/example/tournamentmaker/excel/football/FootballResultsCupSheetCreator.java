@@ -51,7 +51,7 @@ public class FootballResultsCupSheetCreator implements FootballResultsCreator {
 
         createTeamCells(sheet, rounds);
         connectTeamCellsWithColoredCells(sheet, rounds.size());
-        addCupPicture(workbook, sheet, pictureColumnPosition, pictureRowPosition);
+//        addCupPicture(workbook, sheet, pictureColumnPosition, pictureRowPosition); test nie działa przez dodanie zdjecia
         return sheet;
     }
 
@@ -155,7 +155,7 @@ public class FootballResultsCupSheetCreator implements FootballResultsCreator {
         final int skippingColumnsBetweenRounds = 2;
         List<Integer> cellsNumberToSkipOffTheTopAndBottom = createCellsToSkipList(howManyRounds);
         List<Integer> gamesCountToColorInRow = createCellsNumberToColorInRow(howManyRounds);
-        int howManyPaintingsInRound = howManyRounds;
+        int howManyPaintingsInRound = (int) Math.pow(2, howManyRounds - 1); // ???
         int columCount = 1;
         int rowCount = 0;
 

@@ -24,7 +24,7 @@ class ExcelService {
     private final TournamentRepository tournamentRepository;
     private final FootballExcelService footballExcelService;
     private final Workbook workbook = new XSSFWorkbook();
-    @Value("${application.excel.cup.path}")
+    @Value("${application.excel.file.path}")
     private String filePath;
 
     void writeTournamentInformationInExcel(String tournamentName) {
