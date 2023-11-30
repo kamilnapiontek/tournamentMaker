@@ -104,13 +104,13 @@ public class ResultService {
     }
 
     private void updateAllSpecificStatisticForTeam(FootballResultStatistics requestStatistics, Team team, FootballStatistics statistics) {
-        updateSpecificStatisticInTeam(requestStatistics.getShirtNumbersWithGoal(), team,
+        updateSpecificStatisticInTeam(requestStatistics.shirtNumbersWithGoal(), team,
                 statistics.getPlayersIdWithGoal());
-        updateSpecificStatisticInTeam(requestStatistics.getShirtNumbersWithYellowCard(), team,
+        updateSpecificStatisticInTeam(requestStatistics.shirtNumbersWithYellowCard(), team,
                 statistics.getPlayersIdWithYellowCard());
-        updateSpecificStatisticInTeam(requestStatistics.getShirtNumbersWithRedCard(), team,
+        updateSpecificStatisticInTeam(requestStatistics.shirtNumbersWithRedCard(), team,
                 statistics.getPlayersIdWithRedCard());
-        updateSpecificStatisticInTeam(requestStatistics.getShirtNumbersWithCleanSlate(), team,
+        updateSpecificStatisticInTeam(requestStatistics.shirtNumbersWithCleanSlate(), team,
                 statistics.getPlayersIdWithCleanSheets());
     }
 

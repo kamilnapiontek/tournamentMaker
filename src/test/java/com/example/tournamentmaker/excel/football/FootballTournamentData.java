@@ -1,9 +1,8 @@
 package com.example.tournamentmaker.excel.football;
 
+import com.example.tournamentmaker.statistics.MatchResult;
+import com.example.tournamentmaker.statistics.Statistics;
 import com.example.tournamentmaker.team.Team;
-import com.example.tournamentmaker.team.player.FootballPlayer;
-import com.example.tournamentmaker.team.player.FootballPosition;
-import com.example.tournamentmaker.team.player.Player;
 import com.example.tournamentmaker.tournament.Tournament;
 import com.example.tournamentmaker.tournament.enums.Sport;
 import com.example.tournamentmaker.tournament.enums.TournamentType;
@@ -11,22 +10,44 @@ import com.example.tournamentmaker.tournament.game.Game;
 import com.example.tournamentmaker.tournament.round.Round;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Sheet;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.example.tournamentmaker.constans.Constans.POINTS_FOR_WINNING_IN_FOOTBALL;
+import static com.example.tournamentmaker.util.StatisticUtil.createAllFootballStatisticsForTournament;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FootballTournamentData {
-    public static Tournament createFootallTournament(TournamentType type) {
+    public static Tournament createFootballTournament(TournamentType type) {
         Tournament tournament = new Tournament("Tournament", type, Sport.FOOTBALL);
         createTeams(tournament);
-        addPlayerInEachPositionForTeam(tournament.getTeamList());
         if (type == TournamentType.CUP) {
             createRoundsWithResultsForCup(tournament);
         } else {
-            //TODO
+            createAllFootballStatisticsForTournament(tournament);
+            enterStatisticsForLeague(tournament);
         }
         return tournament;
+    }
+
+    private static void enterStatisticsForLeague(Tournament tournament) {
+        List<Team> teamList = tournament.getTeamList();
+        final int countDraws = 0;
+        int countWins = 3;
+        int countLoses = 0;
+
+        for (Team team : teamList) {
+            Statistics statistics = team.getStatistics();
+            statistics.setPoints(countWins * POINTS_FOR_WINNING_IN_FOOTBALL);
+            statistics.setCountWins(countWins--);
+            statistics.setCountLoses(countLoses++);
+            statistics.setCountDraws(countDraws);
+            statistics.setRecentMatchResults(List.of(MatchResult.WIN, MatchResult.DRAW, MatchResult.LOSE));
+        }
     }
 
     private static void createRoundsWithResultsForCup(Tournament tournament) {
@@ -59,33 +80,28 @@ public class FootballTournamentData {
         rounds.add(round);
     }
 
-    private static void addPlayerInEachPositionForTeam(List<Team> teamList) {
-        FootballPosition[] footballPositions = FootballPosition.values();
-        AtomicLong id = new AtomicLong(1);
-        teamList.forEach(team -> {
-            List<Player> players = team.getPlayers();
-            int jerseyNumber = 1;
-            for (FootballPosition position : footballPositions) {
-                FootballPlayer player = new FootballPlayer(team.getName(), position.toString(), team, jerseyNumber++, position);
-//                player.setId(id.getAndIncrement()); // potrzebne?
-                players.add(player);
-            }
-        });
-    }
-
     private static void createTeams(Tournament tournament) {
         List<Team> teams = tournament.getTeamList();
-        List<String> teamsName = List.of("AC Milan", "Ajax", "Arsenal", "Bayern Munich", "FC Barcelona",
-                "Real Madrid", "Manchester United", "Zenit Saint Petersburg");
+        List<String> teamNames = getTeamNames(tournament.getTournamentType());
         AtomicLong id = new AtomicLong(1);
-        teamsName.forEach(name -> {
+        teamNames.forEach(name -> {
             Team team = new Team(name, tournament);
-//            team.setId(id.getAndIncrement()); // potrzebne?
+            team.setId(id.getAndIncrement());
             teams.add(team);
         });
     }
 
-    static byte[] generateFakeImageBytes() {
-        return new byte[]{0x12, 0x34, 0x56, 0x78};
+    private static List<String> getTeamNames(TournamentType type) {
+        if (type == TournamentType.CUP) {
+            return List.of("AC Milan", "Ajax", "Arsenal", "Bayern Munich", "FC Barcelona",
+                    "Real Madrid", "Manchester United", "Zenit Saint Petersburg");
+        }
+        return List.of("AC Milan", "Ajax", "Arsenal", "Bayern Munich");
+    }
+
+    public static String getStringCellValue(int colNumber, int rowNumber, Sheet sheet) {
+        Cell cell = sheet.getRow(rowNumber).getCell(colNumber);
+        DataFormatter dataFormatter = new DataFormatter();
+        return dataFormatter.formatCellValue(cell);
     }
 }

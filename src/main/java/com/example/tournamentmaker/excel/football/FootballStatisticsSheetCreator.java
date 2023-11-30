@@ -70,7 +70,7 @@ public class FootballStatisticsSheetCreator implements SheetCreator {
         rowStart++;
 
         int place = 1;
-        Map<Long, Integer> topTen = getTopTenPlayersInSpecificStatistic(teamList, type);
+        Map<Long, Integer> topTen = getTopTenPlayersIdInStatisticType(teamList, type);
 
         for (Long playerId : topTen.keySet()) {
             FootballPlayer player = playerRepository.findById(playerId).orElseThrow(
@@ -90,7 +90,7 @@ public class FootballStatisticsSheetCreator implements SheetCreator {
         }
     }
 
-    private Map<Long, Integer> getTopTenPlayersInSpecificStatistic(List<Team> teamList, FootballStatisticType type) {
+    private Map<Long, Integer> getTopTenPlayersIdInStatisticType(List<Team> teamList, FootballStatisticType type) {
         Map<Long, Integer> allPlayersWithSpecificStatistic = new HashMap<>();
         final int playersNumber = 10;
 

@@ -1,15 +1,17 @@
 package com.example.tournamentmaker.tournament.result;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@AllArgsConstructor
+@SuperBuilder
 public abstract class ResultRequest {
-    private final String tournamentName;
-    private Integer turn;
-    private final String hostName;
-    private final String guestName;
-    private final Integer hostPoints;
-    private final Integer guestPoints;
+    protected final String tournamentName;
+    protected final Integer turn;
+    protected final String hostName;
+    protected final String guestName;
+    protected final Integer hostPoints;
+    protected final Integer guestPoints;
 }

@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class FootballResultsSheetCreator implements SheetCreator {
-    private final FootballResultsCupSheetCreator cupResultsCreator;
-    private final FootballResultsLeagueSheetCreator leagueResultsCreator;
+    private final FootballResultsCupSheetStrategy cupResultsCreator;
+    private final FootballResultsLeagueSheetStrategy leagueResultsCreator = new FootballResultsLeagueSheetStrategy();
     private static final String SHEET_NAME = "Results";
 
     @Override

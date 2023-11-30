@@ -25,7 +25,7 @@ import static com.example.tournamentmaker.excel.football.FootballExcelUtil.creat
 
 @Service
 @RequiredArgsConstructor
-public class FootballResultsCupSheetCreator implements FootballResultsCreator {
+public class FootballResultsCupSheetStrategy implements FootballResultsStrategy {
     @Value("${application.excel.cup.path}")
     private String cupPath;
     private final TeamRepository teamRepository;
@@ -122,7 +122,7 @@ public class FootballResultsCupSheetCreator implements FootballResultsCreator {
     }
 
     private void addCupPicture(Workbook workbook, Sheet sheet, int col, int row) {
-        try (InputStream inputStream = FootballResultsCupSheetCreator.class.getClassLoader().getResourceAsStream(cupPath)) {
+        try (InputStream inputStream = FootballResultsCupSheetStrategy.class.getClassLoader().getResourceAsStream(cupPath)) {
 
             assert inputStream != null;
             byte[] bytes = IOUtils.toByteArray(inputStream);

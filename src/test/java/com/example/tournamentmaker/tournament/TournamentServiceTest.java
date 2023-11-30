@@ -1,9 +1,6 @@
 package com.example.tournamentmaker.tournament;
 
-import com.example.tournamentmaker.constans.Constans;
-import com.example.tournamentmaker.tournament.enums.Sport;
 import com.example.tournamentmaker.tournament.enums.TournamentType;
-import com.example.tournamentmaker.util.Util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,8 +12,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static com.example.tournamentmaker.constans.Constans.MINIMUM_TEAMS_NUMBER;
-import static com.example.tournamentmaker.util.Util.createTeams;
-import static com.example.tournamentmaker.util.Util.createTournament;
+import static com.example.tournamentmaker.util.TeamUtil.createTeams;
+import static com.example.tournamentmaker.util.TournamentUtil.createTournament;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,7 +22,6 @@ class TournamentServiceTest {
     private TournamentService tournamentService;
     @Mock
     private TournamentRepository tournamentRepository;
-
     @Mock
     private CupSchedule cupSchedule;
 

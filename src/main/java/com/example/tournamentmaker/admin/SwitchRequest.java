@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-class SwitchRequest {
+public class SwitchRequest {
     private final String email;
     private Role newRole;
 

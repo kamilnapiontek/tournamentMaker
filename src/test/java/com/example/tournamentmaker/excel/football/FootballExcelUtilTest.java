@@ -4,7 +4,6 @@ import org.junit.gen5.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static com.example.tournamentmaker.excel.football.FootballExcelUtil.stringContainsOnlyNumbers;
-import static org.junit.jupiter.api.Assertions.*;
 
 class FootballExcelUtilTest {
     @Test
@@ -16,6 +15,7 @@ class FootballExcelUtilTest {
         // then
         Assertions.assertTrue(stringContainsOnlyNumbers);
     }
+
     @Test
     void shouldReturnFalseWhenStringContainsOnlyNumbers() {
         // given

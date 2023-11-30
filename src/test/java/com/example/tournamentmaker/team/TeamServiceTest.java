@@ -1,13 +1,10 @@
 package com.example.tournamentmaker.team;
 
 import com.example.tournamentmaker.team.exception.TournamentRegistrationException;
-import com.example.tournamentmaker.team.player.FootballPosition;
 import com.example.tournamentmaker.team.player.Player;
 import com.example.tournamentmaker.team.player.PlayerRepository;
 import com.example.tournamentmaker.tournament.Tournament;
 import com.example.tournamentmaker.tournament.TournamentRepository;
-import com.example.tournamentmaker.tournament.enums.Sport;
-import com.example.tournamentmaker.tournament.enums.TournamentType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,10 +12,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static com.example.tournamentmaker.team.TeamServiceTestData.createFootballPlayerRequest;
+import static com.example.tournamentmaker.team.TeamServiceTestData.getFootballTeamsAndPlayersRequest;
+import static com.example.tournamentmaker.util.TournamentUtil.creteTournament;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,16 +30,19 @@ class TeamServiceTest {
     private TournamentRepository tournamentRepository;
     @Mock
     private PlayerRepository playerRepository;
+    private static final String EXAMPLE_TOURNAMENT_NAME = "Tournament";
+    private static final String EXAMPLE_TEAM_NAME = "FC Barcelona";
+    private static final int EXAMPLE_NUMBER = 7;
 
     @Test
     void shouldCreateTeam() {
         // given
-        final String tournamentName = "Tournament";
-        final String teamName = "FC Barcelona";
-        Optional<Tournament> tournament = Optional.of(createFootballCup(tournamentName));
+        final String tournamentName = EXAMPLE_TOURNAMENT_NAME;
+        Optional<Tournament> tournament = Optional.of(creteTournament(tournamentName));
+        TeamRequest request = new TeamRequest(tournamentName, EXAMPLE_TEAM_NAME);
         // when
         when(tournamentRepository.findByName(tournamentName)).thenReturn(tournament);
-        teamService.createTeam(new TeamRequest(tournamentName, teamName));
+        teamService.createTeam(request);
         // then
         verify(teamRepository, times(1)).save(any(Team.class));
     }
@@ -49,36 +51,34 @@ class TeamServiceTest {
     void shouldThrowExceptionWhenTournamentDoesNotExist_createTeam() {
         // given
         final String tournamentName = "NonExistentTournament";
-        final String teamName = "FC Barcelona";
         // when
         Assertions.assertThrows(NoSuchElementException.class, () ->
-                teamService.createTeam(new TeamRequest(tournamentName, teamName))
+                teamService.createTeam(new TeamRequest(tournamentName, EXAMPLE_TEAM_NAME))
         );
     }
 
     @Test
     void shouldThrowExceptionWhenRegistrationClosed() {
         // given
-        final String tournamentName = "Tournament";
-        final String teamName = "FC Barcelona";
-        Optional<Tournament> tournament = Optional.of(createFootballCup(tournamentName));
+        final String tournamentName = EXAMPLE_TOURNAMENT_NAME;
+        Optional<Tournament> tournament = Optional.of(creteTournament(tournamentName));
         tournament.get().setRegistrationCompleted(true);
         // when
         when(tournamentRepository.findByName(tournamentName)).thenReturn(tournament);
         Assertions.assertThrows(
                 TournamentRegistrationException.class, () ->
-                        teamService.createTeam(new TeamRequest(tournamentName, teamName))
+                        teamService.createTeam(new TeamRequest(tournamentName, EXAMPLE_TEAM_NAME))
         );
     }
 
     @Test
     void shouldAddFootballPlayer() {
         // given
-        final String teamName = "FC Barcelona";
-        final Tournament tournament = createFootballCup("Tournament");
+        final String teamName = EXAMPLE_TEAM_NAME;
+        final Tournament tournament = creteTournament(EXAMPLE_TOURNAMENT_NAME);
         // when
         when(teamRepository.findByName(teamName)).thenReturn(Optional.of(new Team(teamName, tournament)));
-        teamService.addFootballPlayer(createFootballPlayerRequest(teamName, 7));
+        teamService.addFootballPlayer(createFootballPlayerRequest(teamName, EXAMPLE_NUMBER));
         // then
         verify(playerRepository, times(1)).save(any(Player.class));
     }
@@ -86,29 +86,29 @@ class TeamServiceTest {
     @Test
     void shouldThrowExceptionWhenPlayerWithJerseyNumberAlreadyExistInTeam() {
         // given
-        final String teamName = "FC Barcelona";
-        final Tournament tournament = createFootballCup("Tournament");
+        final String teamName = EXAMPLE_TEAM_NAME;
+        final Tournament tournament = creteTournament(EXAMPLE_TOURNAMENT_NAME);
         // when
         when(teamRepository.findByName(teamName)).thenReturn(Optional.of(new Team(teamName, tournament)));
-        teamService.addFootballPlayer(createFootballPlayerRequest(teamName, 7));
+        teamService.addFootballPlayer(createFootballPlayerRequest(teamName, EXAMPLE_NUMBER));
         Assertions.assertThrows(IllegalArgumentException.class, () ->
-                teamService.addFootballPlayer(createFootballPlayerRequest(teamName, 7)));
+                teamService.addFootballPlayer(createFootballPlayerRequest(teamName, EXAMPLE_NUMBER)));
     }
 
     @Test
     void shouldThrowExceptionWhenTournamentDoesNotExist_addFootballPlayer() {
         // given
-        final String teamName = "FC Barcelona";
+        FootballPlayerRequest request = createFootballPlayerRequest(EXAMPLE_TEAM_NAME, EXAMPLE_NUMBER);
         // when
         Assertions.assertThrows(NoSuchElementException.class, () ->
-                teamService.addFootballPlayer(createFootballPlayerRequest(teamName, 7)));
+                teamService.addFootballPlayer(request));
     }
 
     @Test
     void shouldCreateFootballTeamsWithPlayers() {
         // given
-        final String tournamentName = "Tournament";
-        final Tournament tournament = createFootballCup(tournamentName);
+        final String tournamentName = EXAMPLE_TOURNAMENT_NAME;
+        final Tournament tournament = creteTournament(tournamentName);
         FootballTeamsAndPlayersRequest request = getFootballTeamsAndPlayersRequest(tournament);
         // when
         when(tournamentRepository.findByName(tournamentName)).thenReturn(Optional.of(tournament));
@@ -127,36 +127,7 @@ class TeamServiceTest {
         // when
         Assertions.assertThrows(NoSuchElementException.class, () ->
                 teamService.createFootballTeamsWithPlayers(
-                        getFootballTeamsAndPlayersRequest(createFootballCup(tournamentName)))
+                        getFootballTeamsAndPlayersRequest(creteTournament(tournamentName)))
         );
-    }
-
-    private FootballTeamsAndPlayersRequest getFootballTeamsAndPlayersRequest(Tournament tournament) {
-        return new FootballTeamsAndPlayersRequest(tournament.getName(),
-                List.of(
-                        createFootballTeamRequest("FC Barcelona", List.of(
-                                createFootballPlayer("Lionel", "Messi", 10, FootballPosition.FORWARD),
-                                createFootballPlayer("Andrés", "Iniesta", 8, FootballPosition.MIDFIELDER))),
-                        createFootballTeamRequest("Real Madrid", List.of(
-                                createFootballPlayer("Cristiano", "Ronaldo", 7, FootballPosition.FORWARD),
-                                createFootballPlayer("Iker", "Casillas", 1, FootballPosition.GOALKEEPER)))));
-    }
-
-    private FootballTeamRequest createFootballTeamRequest(String teamName, List<FootballPlayerRequestWithoutGivingTeamName> list) {
-        return new FootballTeamRequest(teamName, list);
-    }
-
-    private FootballPlayerRequestWithoutGivingTeamName createFootballPlayer(
-            String firstName, String lastName, Integer jerseyNumber, FootballPosition position) {
-        return new FootballPlayerRequestWithoutGivingTeamName(firstName, lastName, jerseyNumber, position);
-    }
-
-    private Tournament createFootballCup(String tournamentName) {
-        return new Tournament(tournamentName, TournamentType.CUP, Sport.FOOTBALL);
-    }
-
-    private FootballPlayerRequest createFootballPlayerRequest(String teamName, int jerseyNumber) {
-        return new FootballPlayerRequest(
-                teamName, "John", "Snow", jerseyNumber, "MIDFIELDER");
     }
 }
