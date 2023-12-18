@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -26,8 +25,7 @@ import static com.example.tournamentmaker.excel.football.FootballExcelUtil.creat
 @Service
 @RequiredArgsConstructor
 public class FootballResultsCupSheetStrategy implements FootballResultsStrategy {
-    @Value("${application.excel.cup.path}")
-    private String cupPath;
+    private static final String CUP_PATH = "static/cup.jpg";
     private final TeamRepository teamRepository;
     private static final int MAX_COLUMN_AMOUNT = 20;
     private static final int TEAM_COLUMN_EXCEL_WIDTH = 30;
@@ -51,7 +49,7 @@ public class FootballResultsCupSheetStrategy implements FootballResultsStrategy 
 
         createTeamCells(sheet, rounds);
         connectTeamCellsWithColoredCells(sheet, rounds.size());
-//        addCupPicture(workbook, sheet, pictureColumnPosition, pictureRowPosition); test nie działa przez dodanie zdjecia
+        addCupPicture(workbook, sheet, pictureColumnPosition, pictureRowPosition);
         return sheet;
     }
 
@@ -122,7 +120,7 @@ public class FootballResultsCupSheetStrategy implements FootballResultsStrategy 
     }
 
     private void addCupPicture(Workbook workbook, Sheet sheet, int col, int row) {
-        try (InputStream inputStream = FootballResultsCupSheetStrategy.class.getClassLoader().getResourceAsStream(cupPath)) {
+        try (InputStream inputStream = FootballResultsCupSheetStrategy.class.getClassLoader().getResourceAsStream(CUP_PATH)) {
 
             assert inputStream != null;
             byte[] bytes = IOUtils.toByteArray(inputStream);

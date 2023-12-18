@@ -26,9 +26,9 @@ class CupScheduleTest {
 
     @ParameterizedTest
     @MethodSource("resultsData")
-    void shouldCreateCupSchedule(int teamsNumber, int expectedRoundsNumber) {
+    void shouldCreateCupSchedule(final int teamsNumber, final int expectedRoundsNumber) {
         // given
-        Tournament tournament = createTournament();
+        final Tournament tournament = createTournament();
         createTeams(tournament, teamsNumber);
         // when
         cupSchedule.createSchedule(tournament);

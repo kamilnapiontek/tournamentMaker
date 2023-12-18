@@ -65,9 +65,7 @@ public class FootballStatisticsSheetCreator implements SheetCreator {
     private void createStatisticTable(Sheet sheet, int rowStart, int colStart, List<Team> teamList,
                                       FootballStatisticType type, CellStyle borderCellStyle, CellStyle fillingTableCellStyle) {
 
-
         crateColumnsHeaders(sheet, rowStart, colStart, type, borderCellStyle);
-        rowStart++;
 
         int place = 1;
         Map<Long, Integer> topTen = getTopTenPlayersIdInStatisticType(teamList, type);
@@ -78,15 +76,14 @@ public class FootballStatisticsSheetCreator implements SheetCreator {
                         throw new NoSuchElementException("Can't find player with given id");
                     }
             );
-            Row row = sheet.getRow(rowStart);
+            Row row = sheet.getRow(++rowStart);
 
-            List<String> stringsToWrittenForPlayer = List.of(Integer.toString(place++), player.getFirstName() + " " +
+            List<String> playerDataForRow = List.of(Integer.toString(place++), player.getFirstName() + " " +
                     player.getLastName(), player.getTeam().getName(), topTen.get(playerId).toString());
 
             AtomicInteger col = new AtomicInteger(colStart);
-            stringsToWrittenForPlayer.forEach(string ->
+            playerDataForRow.forEach(string ->
                     createCell(row, col.getAndIncrement(), fillingTableCellStyle, string));
-            rowStart++;
         }
     }
 
