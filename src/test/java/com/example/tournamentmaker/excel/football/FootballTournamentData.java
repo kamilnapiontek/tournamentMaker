@@ -21,8 +21,8 @@ import static com.example.tournamentmaker.constans.Constans.POINTS_FOR_WINNING_I
 import static com.example.tournamentmaker.util.StatisticUtil.createAllFootballStatisticsForTournament;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class FootballTournamentData {
-    public static Tournament createFootballTournament(TournamentType type) {
+class FootballTournamentData {
+    static Tournament createFootballTournament(TournamentType type) {
         Tournament tournament = new Tournament("Tournament", type, Sport.FOOTBALL);
         createTeams(tournament);
         if (type == TournamentType.CUP) {
@@ -58,8 +58,8 @@ public class FootballTournamentData {
 
         for (int i = 1; i <= turnAmount; i++) {
             createRound(rounds, i, gamesAmount, teamIdJump, tournament);
-            gamesAmount = gamesAmount / 2;
-            teamIdJump = teamIdJump * 2;
+            gamesAmount /= 2;
+            teamIdJump *= 2;
         }
     }
 
@@ -72,8 +72,7 @@ public class FootballTournamentData {
             Game game = new Game(teamId, teamId + teamIdJump, round);
             game.setHostPoints(2);
             game.setGuestPoints(1);
-            game.setId(gameId);
-            gameId++;
+            game.setId(gameId++);
             teamId += teamIdJump * 2L;
             round.getGames().add(game);
         }

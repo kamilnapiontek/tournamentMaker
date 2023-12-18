@@ -28,17 +28,17 @@ class LeagueScheduleTest {
 
     @ParameterizedTest
     @MethodSource("resultsDataWhenEvenTeamsNumber")
-    void shouldCreateLeagueScheduleWhenEvenTeamsNumber(int roundNumber, int gameNumber,
-                                                       long expectedHostId, long expectedGuestId) {
+    void shouldCreateLeagueScheduleWhenEvenTeamsNumber(final int roundNumber, final int gameNumber,
+                                                       final long expectedHostId, final long expectedGuestId) {
         // given
-        Tournament tournament = createTournament();
-        int teamsNumber = 4;
+        final Tournament tournament = createTournament();
+        final int teamsNumber = 4;
         createTeams(tournament, teamsNumber);
         // when
         leagueSchedule.createSchedule(tournament);
         // then
-        Round round = tournament.getRounds().get(roundNumber);
-        Game game = round.getGames().get(gameNumber);
+        final Round round = tournament.getRounds().get(roundNumber);
+        final Game game = round.getGames().get(gameNumber);
         Assertions.assertEquals(expectedHostId, game.getHostId());
         Assertions.assertEquals(expectedGuestId, game.getGuestId());
     }

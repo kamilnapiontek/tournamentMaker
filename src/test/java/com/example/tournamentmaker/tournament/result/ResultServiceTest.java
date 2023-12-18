@@ -206,7 +206,7 @@ class ResultServiceTest {
         String guestName = "Guest";
         Team hostTeam = createTeam(1L, hostName, tournament);
         Team guestTeam = createTeam(2L, guestName, tournament);
-        int turnNumber = 1;
+        final int turnNumber = 1;
         Round round = new Round(turnNumber, tournament);
         tournament.getRounds().add(round);
         round.getGames().add(new Game(hostTeam.getId(), guestTeam.getId(), round));

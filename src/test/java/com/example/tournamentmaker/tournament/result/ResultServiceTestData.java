@@ -42,7 +42,7 @@ class ResultServiceTestData {
                 .guestPoints(guestPoints).build();
     }
 
-    static private FootballResultStatistics createFootballResultStatistics(List<Integer> shirtNumbersWithGoal,
+    private static FootballResultStatistics createFootballResultStatistics(List<Integer> shirtNumbersWithGoal,
                                                                            List<Integer> shirtNumbersWithYellowCard,
                                                                            List<Integer> shirtNumbersWithRedCard,
                                                                            List<Integer> shirtWithCleanSlate) {

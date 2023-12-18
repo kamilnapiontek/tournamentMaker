@@ -43,15 +43,15 @@ class RandomResultServiceTest {
     private ResultService resultService;
     @InjectMocks
     private RandomResultService randomResultService;
+    private static final String ROUNDS_TO_DRAW = "1-3";
 
     @Test
     void shouldContainExceptionWhenTournamentNameNotFound() {
         //given
         String name = "There is no such tournament";
-        String roundsToDraw = "1-3";
         //when
         NoSuchElementException exception = assertThrows(NoSuchElementException.class,
-                () -> randomResultService.drawLotRoundsResults(new RandomResultRequest(name, roundsToDraw)
+                () -> randomResultService.drawLotRoundsResults(new RandomResultRequest(name, ROUNDS_TO_DRAW)
                 ));
         assertEquals(NO_TOURNAMENT_FOUND, exception.getMessage());
     }
@@ -67,8 +67,7 @@ class RandomResultServiceTest {
         Team exampleTeam = tournament.getTeamList().get(0);
         createPlayersAtEveryPosition(exampleTeam);
         createRounds(tournament);
-        String roundsToDraw = "1-3";
-        RandomResultRequest request = new RandomResultRequest(tournamentName, roundsToDraw);
+        RandomResultRequest request = new RandomResultRequest(tournamentName, ROUNDS_TO_DRAW);
         // when
         when(tournamentRepository.findByName(tournamentName)).thenReturn(Optional.of(tournament));
         when(footballStatisticsRepository.findByTeamId(any())).thenReturn(Optional.of(new FootballStatistics()));
