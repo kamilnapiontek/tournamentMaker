@@ -14,7 +14,6 @@ import com.example.tournamentmaker.tournament.enums.TournamentType;
 import com.example.tournamentmaker.tournament.game.Game;
 import com.example.tournamentmaker.tournament.game.GameRepository;
 import com.example.tournamentmaker.tournament.result.ResultService;
-import com.example.tournamentmaker.tournament.round.CupRoundService;
 import com.example.tournamentmaker.tournament.round.Round;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +22,12 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.example.tournamentmaker.constans.Constans.NO_TOURNAMENT_FOUND;
 import static com.example.tournamentmaker.randomResultGenerator.RandomUtil.*;
+import static com.example.tournamentmaker.tournament.round.CupRoundUtil.createNextRoundSchedule;
+import static com.example.tournamentmaker.tournament.round.CupRoundUtil.isBye;
 
 @Slf4j
 @Service
@@ -38,16 +38,15 @@ class RandomResultService {
     private final FootballStatisticsRepository footballStatisticsRepository;
     private final TeamRepository teamRepository;
     private final ResultService resultService;
-    private final CupRoundService cupRoundService;
     private static final int MIN_YELLOW_CARDS_IN_MATCH = 0;
     private static final int MAX_YELLOW_CARDS_IN_MATCH = 3;
 
     public void drawLotRoundsResults(RandomResultRequest request) {
-        Tournament tournament = tournamentRepository.findByName(request.getTournamentName())
+        Tournament tournament = tournamentRepository.findByName(request.tournamentName())
                 .orElseThrow(() -> {
                     throw new NoSuchElementException(NO_TOURNAMENT_FOUND);
                 });
-        String[] rounds = request.getRoundsToDraw().split("-");
+        String[] rounds = request.roundsToDraw().split("-");
         int firstRound = Integer.parseInt(rounds[0]);
         int lastRound = Integer.parseInt(rounds[1]);
 
@@ -60,7 +59,7 @@ class RandomResultService {
                 Round round = tournament.getRounds().get(roundNumber);
                 drawLotFootballRoundResult(round);
                 if (tournament.getTournamentType() == TournamentType.CUP && !isLastRound(tournament, round)) {
-                    cupRoundService.createNextRoundSchedule(tournament, round);
+                    createNextRoundSchedule(tournament, round);
                 }
             } catch (ArrayIndexOutOfBoundsException e) {
                 log.error("There is no round with index " + (roundNumber - 1) +
@@ -75,7 +74,7 @@ class RandomResultService {
 
     private void drawLotFootballRoundResult(Round round) {
         round.getGames().forEach(game -> {
-            if (!cupRoundService.isBye(game)) {
+            if (!isBye(game)) {
                 drawLotFootballGameResult(game);
             }
         });

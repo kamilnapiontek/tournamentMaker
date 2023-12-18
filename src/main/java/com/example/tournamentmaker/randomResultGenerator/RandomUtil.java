@@ -1,11 +1,14 @@
 package com.example.tournamentmaker.randomResultGenerator;
 
 import com.example.tournamentmaker.team.player.FootballPosition;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.Random;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 class RandomUtil {
-    private final static Random random = new Random();
+    private static final Random random = new Random();
     private static final int ZERO_PERCENT = 0;
     private static final int ONE_HUNDRED_PERCENT = 100;
 

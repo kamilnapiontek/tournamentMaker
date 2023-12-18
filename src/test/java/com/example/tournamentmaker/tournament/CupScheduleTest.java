@@ -12,8 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.stream.Stream;
 
-import static com.example.tournamentmaker.util.Util.createTeams;
-import static com.example.tournamentmaker.util.Util.createTournament;
+import static com.example.tournamentmaker.util.TeamUtil.createTeams;
+import static com.example.tournamentmaker.util.TournamentUtil.createTournament;
 
 @ExtendWith(MockitoExtension.class)
 class CupScheduleTest {

@@ -33,7 +33,8 @@ class TournamentIntegrationTest {
     @WithMockUser(username = "user", authorities = {"admin:update"})
     void shouldCreateTournament() throws Exception {
         // given
-        TournamentRequest request = new TournamentRequest("Tournament", Sport.FOOTBALL, TournamentType.LEAGUE);
+        TournamentRequest request = new TournamentRequest(
+                "Tournament", Sport.FOOTBALL.toString(), TournamentType.LEAGUE.toString());
         String mappedRequest = objectMapper.writeValueAsString(request);
         // when
         MvcResult result = mockMvc.perform(post("/api/tournament/create")

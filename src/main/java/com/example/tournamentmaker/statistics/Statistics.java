@@ -2,7 +2,6 @@ package com.example.tournamentmaker.statistics;
 
 import com.example.tournamentmaker.team.Team;
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

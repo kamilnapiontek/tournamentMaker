@@ -1,14 +1,11 @@
 package com.example.tournamentmaker.excel.football;
 
-import com.example.tournamentmaker.statistics.StatisticService;
 import com.example.tournamentmaker.statistics.Statistics;
 import com.example.tournamentmaker.team.Team;
 import com.example.tournamentmaker.tournament.Tournament;
-import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
-import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
@@ -17,11 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.example.tournamentmaker.excel.ExcelUtil.COLUMN_WIDTH_UNIT;
 import static com.example.tournamentmaker.excel.ExcelUtil.createCellStyle;
 import static com.example.tournamentmaker.excel.football.FootballExcelUtil.createCell;
+import static com.example.tournamentmaker.statistics.StatisticUtil.getGamesCount;
+import static com.example.tournamentmaker.statistics.StatisticUtil.getRecentMatchResultsString;
 
-@Service
-@RequiredArgsConstructor
-public class FootballResultsLeagueSheetCreator implements FootballResultsCreator {
-    private final StatisticService statisticService;
+public class FootballResultsLeagueSheetStrategy implements FootballResultsStrategy {
     private static final int TEAM_COLUMN_EXCEL_WIDTH = 26;
     private static final int COLUMN_WITH_NUMBER_EXCEL_WIDTH = 5;
     private static final int LAST_5_COLUMN_EXCEL_WIDTH = 12;
@@ -61,14 +57,14 @@ public class FootballResultsLeagueSheetCreator implements FootballResultsCreator
         Row row = sheet.createRow(rowNumber);
         AtomicInteger col = new AtomicInteger(0);
 
-        List<Object> values = List.of(place, stats.getTeam().getName(), statisticService.getGamesCount(stats),
+        List<Object> values = List.of(place, stats.getTeam().getName(), getGamesCount(stats),
                 stats.getCountWins(), stats.getCountDraws(), stats.getCountLoses(), stats.getPoints(),
                 getRichTextStringInColors(workbook, stats));
         values.forEach(value -> createCell(row, col.getAndIncrement(), cellStyle, value));
     }
 
     private XSSFRichTextString getRichTextStringInColors(Workbook workbook, Statistics stats) {
-        String lastResults = statisticService.getRecentMatchResultsString(stats);
+        String lastResults = getRecentMatchResultsString(stats);
         List<String> firstLetterResults = List.of(lastResults.split(" "));
         XSSFRichTextString richText = new XSSFRichTextString("");
 

@@ -1,5 +1,6 @@
 package com.example.tournamentmaker.tournament;
 
+import com.example.tournamentmaker.tournament.enums.Sport;
 import com.example.tournamentmaker.tournament.enums.TournamentType;
 import com.example.tournamentmaker.tournament.result.FootballResultRequest;
 import com.example.tournamentmaker.tournament.result.ResultService;
@@ -20,9 +21,10 @@ class TournamentService {
     private final CupSchedule cupSchedule;
     private final ResultService resultService;
 
-    void createTournament(TournamentRequest tournamentRequest) {
+    void createTournament(TournamentRequest request) {
         Tournament tournament = new Tournament(
-                tournamentRequest.getName(), tournamentRequest.getTournamentType(), tournamentRequest.getSport());
+                request.name(), TournamentType.valueOf(request.tournamentType()), Sport.valueOf(request.sport()));
+
         tournamentRepository.save(tournament);
     }
 
@@ -46,18 +48,22 @@ class TournamentService {
             }
             tournament.setRegistrationCompleted(true);
             tournamentRepository.save(tournament);
-            TournamentType type = tournament.getTournamentType();
-            if (type == TournamentType.CUP) {
-                cupSchedule.createSchedule(tournament);
-            } else if (type == TournamentType.LEAGUE) {
-                leagueSchedule.createSchedule(tournament);
-            }
+            createScheduleDependingOnType(tournament);
         }, () -> {
             throw new NoSuchElementException(NO_TOURNAMENT_FOUND);
         });
     }
 
-    public void launchFootballResult(FootballResultRequest footballResultRequest) {
+    private void createScheduleDependingOnType(Tournament tournament) {
+        TournamentType type = tournament.getTournamentType();
+        if (type == TournamentType.CUP) {
+            cupSchedule.createSchedule(tournament);
+        } else if (type == TournamentType.LEAGUE) {
+            leagueSchedule.createSchedule(tournament);
+        }
+    }
+
+    void launchFootballResult(FootballResultRequest footballResultRequest) {
         resultService.launchFootballResult(footballResultRequest);
     }
 }

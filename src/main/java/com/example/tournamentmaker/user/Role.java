@@ -9,8 +9,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.example.tournamentmaker.user.Permission.*;
+import static com.example.tournamentmaker.user.PermissionEnum.*;
 
+@Getter
 @RequiredArgsConstructor
 public enum Role {
 
@@ -35,14 +36,12 @@ public enum Role {
                     MANAGER_CREATE
             )
     );
-
-    @Getter
-    private final Set<Permission> permissions;
+    private final Set<PermissionEnum> permissionEnums;
 
     public List<SimpleGrantedAuthority> getAuthorities() {
-        var authorities = getPermissions()
+        var authorities = getPermissionEnums()
                 .stream()
-                .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))
+                .map(permissionEnum -> new SimpleGrantedAuthority(permissionEnum.getPermission()))
                 .collect(Collectors.toList());
         authorities.add(new SimpleGrantedAuthority("ROLE_" + this.name()));
         return authorities;

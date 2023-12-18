@@ -21,11 +21,12 @@ class AdminServiceTest {
     private AdminService adminService;
     @Mock
     private UserRepository userRepository;
+    private static final String EXAMPLE_EMAIL = "email@gmail.com";
 
     @Test
     void shouldSwitchRoleUserToAdmin() {
         // given
-        String email = "john@gmail.com";
+        String email = EXAMPLE_EMAIL;
         Optional<User> user = Optional.of(createUser(email, Role.USER));
         // when
         when(userRepository.findByEmail(email)).thenReturn(user);
@@ -37,10 +38,10 @@ class AdminServiceTest {
     @Test
     void shouldContainExceptionWhenUserNotFound() {
         // given
-        String email = "john@gmail.com";
+        SwitchRequest request = new SwitchRequest(EXAMPLE_EMAIL, Role.ADMIN);
         // when
         Assertions.assertThrows(NoSuchElementException.class,
-                () -> adminService.switchRole(new SwitchRequest(email, Role.ADMIN)));
+                () -> adminService.switchRole(request));
     }
 
     private User createUser(String email, Role role) {

@@ -23,31 +23,40 @@ public class CupSchedule implements ScheduleStrategy {
         List<Long> teamsId = getTeamIdList(tournament);
         Collections.shuffle(teamsId);
 
-        int teamsAmount = teamsId.size();
+        final int teamsAmount = teamsId.size();
+        final int neededSlots = getNeededSlots(teamsAmount);
 
+        createFirstRound(tournament, teamsId, teamsAmount, neededSlots);
+        createRemainingRounds(tournament, neededSlots);
+        tournamentRepository.save(tournament);
+    }
+
+    private void createFirstRound(Tournament tournament, List<Long> teamsId, int teamsAmount, int neededSlots) {
+        final int teamsWithoutOpponent = neededSlots - teamsAmount;
+        final int gamesAmount = (neededSlots - teamsWithoutOpponent * 2) / 2;
+        Round round = new Round(FIRST_ROUND, tournament);
+
+        int currentTeamIndex = 0;
+        for (int i = 0; i < gamesAmount; i++) {
+            Game game = new Game(teamsId.get(currentTeamIndex), teamsId.get(currentTeamIndex + 1), round);
+            round.getGames().add(game);
+            currentTeamIndex += 2;
+        }
+        for (int i = 0; i < teamsWithoutOpponent; i++) {
+            Game game = new Game(teamsId.get(currentTeamIndex++), round);
+            round.getGames().add(game);
+        }
+
+        roundRepository.save(round);
+        tournament.getRounds().add(round);
+    }
+
+    private int getNeededSlots(int teamsAmount) {
         int neededSlots = 2;
         while (teamsAmount > neededSlots) {
             neededSlots *= 2;
         }
-        int teamsWithoutOpponent = neededSlots - teamsAmount;
-        int gamesAmount = (neededSlots - teamsWithoutOpponent * 2) / 2;
-        Round round = new Round(FIRST_ROUND, tournament);
-
-        int currentIndex = 0;
-        for (int i = 0; i < gamesAmount; i++) {
-            Game game = new Game(teamsId.get(currentIndex), teamsId.get(currentIndex + 1), round);
-            round.getGames().add(game);
-            currentIndex += 2;
-        }
-        for (int i = 0; i < teamsWithoutOpponent; i++) {
-            Game game = new Game(teamsId.get(currentIndex++), round);
-            round.getGames().add(game);
-        }
-        roundRepository.save(round);
-        tournament.getRounds().add(round);
-
-        createRemainingRounds(tournament, neededSlots);
-        tournamentRepository.save(tournament);
+        return neededSlots;
     }
 
     private void createRemainingRounds(Tournament tournament, int slots) {

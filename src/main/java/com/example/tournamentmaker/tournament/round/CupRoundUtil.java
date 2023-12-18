@@ -2,13 +2,13 @@ package com.example.tournamentmaker.tournament.round;
 
 import com.example.tournamentmaker.tournament.Tournament;
 import com.example.tournamentmaker.tournament.game.Game;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-@Service
-public class CupRoundService {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class CupRoundUtil {
 
-    public void createNextRoundSchedule(Tournament tournament, Round currentRound) {
+    public static void createNextRoundSchedule(Tournament tournament, Round currentRound) {
         int newRoundNumber = currentRound.getTurn();
         Round newRound = tournament.getRounds().get(newRoundNumber);
         int gamesAmount = currentRound.getGames().size();
@@ -25,14 +25,14 @@ public class CupRoundService {
         }
     }
 
-    private long findWinner(Game game) {
+    private static long findWinner(Game game) {
         if (isBye(game) || game.getHostPoints() > game.getGuestPoints()) {
             return game.getHostId();
         }
         return game.getGuestId();
     }
 
-    public boolean isBye(Game game) {
+    public static boolean isBye(Game game) {
         return game.getGuestId() == null;
     }
 }
